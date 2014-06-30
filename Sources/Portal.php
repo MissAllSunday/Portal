@@ -11,12 +11,17 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-// I should really, really use composer for this...
-require_once($sourcedir . '/Ohara.php');
-
 class Portal extends Ohara
 {
 	public static $name = __CLASS__;
+
+	public function __construct()
+	{
+		global $boarddir;
+
+		// Use composer!
+		require_once ($boarddir .'/vendor/autoload.php');
+	}
 
 	public function init()
 	{
