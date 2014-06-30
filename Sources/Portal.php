@@ -79,6 +79,12 @@ class Portal extends Ohara
 		$config_vars[] = '';
 	}
 
+	public function actions(&$actions)
+	{
+		// Redirect the boardIndex to action "forum".
+		$actions['forum'] = array('BoardIndex', 'BoardIndex');
+	}
+
 	public function getNews()
 	{
 		global $scripturl, $txt, $settings, $modSettings, $context;
