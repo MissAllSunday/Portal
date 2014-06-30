@@ -27,6 +27,10 @@ class Portal extends Ohara
 	{
 		global $context;
 
+		// Mod is disabled.
+		if(!$this->setting('enable'))
+			return;
+
 		// Define some context vars.
 		$context[self::$name] = array(
 			'news' => array(),
@@ -36,12 +40,14 @@ class Portal extends Ohara
 			),
 		);
 
-		// Set a canonical URL for this page.
-		$context['canonical_url'] = $scripturl . (!empty($page) && $page > 1 ? '?page='. $page : '');
-		$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']) . (!empty($page) && $page > 1 ? ' - Page '. $page : '');
+		loadTemplate(self::$name);
 
 		// Get the news.
 		$context[self::$name]['news'] = $this->getNews();
+
+		// Set a canonical URL for this page.
+		$context['canonical_url'] = $scripturl . (!empty($this->_page) && $this->_page > 1 ? '?page='. $this->_page : '');
+		$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']) . (!empty($this->_page) && $this->_page > 1 ? ' - Page '. $this->_page : '');
 
 		// Get github data.
 		if ($this->status())
@@ -61,6 +67,17 @@ class Portal extends Ohara
 		}
 	}
 
+	public function settings(&$config_vars)
+	{
+		$config_vars[] = $this->text('title');
+		$config_vars[] = array('check', self::$name .'_enable', 'subtext' => $this->text('enable_sub'));
+		$config_vars[] = array('int', self::$name .'_limit', 'subtext' => $this->text('limit_sub'));
+		$config_vars[] = array('text', self::$name .'_boards', 'subtext' => $this->text('_sub'));
+		$config_vars[] = array('text', self::$name .'_githubClient', 'subtext' => $this->text('_sub'));
+		$config_vars[] = array('text', self::$name .'_githubPass', 'subtext' => $this->text('_sub'));
+		$config_vars[] = '';
+	}
+
 	public function getNews()
 	{
 		global $scripturl, $txt, $settings, $modSettings, $context;
@@ -71,7 +88,7 @@ class Portal extends Ohara
 		// Get some settings.
 		$this->_limit = $this->enable('limit') ? $this->setting('limit') : 5;
 		$this->_boards = $this->enable('boards') ? explode(',', $this->setting('boards')) : array();
-		$this->_start = isset($_GET['start']) ? (int) $_GET['start'] : 0;
+		$this->_page = isset($_GET['page']) ? (int) $_GET['page'] : 0;
 
 		// Load the message icons - the usual suspects.
 		$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
@@ -94,7 +111,7 @@ class Portal extends Ohara
 				AND t.approved = {int:is_approved}' : '') . '
 				AND {query_see_board}
 			ORDER BY t.id_first_msg DESC
-			LIMIT ' . $this->_start . ', ' . $this->_limit,
+			LIMIT ' . $this->_page . ', ' . $this->_limit,
 			array(
 				'boards' => $this->_boards,
 				'is_approved' => 1,
