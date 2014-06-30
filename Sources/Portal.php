@@ -18,11 +18,6 @@ class Portal extends Ohara
 {
 	public static $name = __CLASS__;
 
-	public function __construct()
-	{
-		$this->_page = isset($_GET['start']) ? (int) $_GET['start'] : 0;
-	}
-
 	public function init()
 	{
 		global $context;
@@ -42,50 +37,10 @@ class Portal extends Ohara
 
 		loadLanguage('Stats');
 
-		// Must be integers....
-		if ($limit === null)
-			$limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 5;
-		else
-			$limit = (int) $limit;
-
-		if ($start === null)
-			$start = isset($_GET['start']) ? (int) $_GET['start'] : 0;
-		else
-			$start = (int) $start;
-
-		if ($board !== null)
-			$board = (int) $board;
-		elseif (isset($_GET['board']))
-			$board = (int) $_GET['board'];
-
-		if ($length === null)
-			$length = isset($_GET['length']) ? (int) $_GET['length'] : 0;
-		else
-			$length = (int) $length;
-
-		$limit = max(0, $limit);
-		$start = max(0, $start);
-
-		// Make sure guests can see this board.
-		$request = $smcFunc['db_query']('', '
-			SELECT id_board
-			FROM {db_prefix}boards
-			WHERE ' . ($board === null ? '' : 'id_board = {int:current_board}
-				AND ') . 'FIND_IN_SET(-1, member_groups) != 0
-			LIMIT 1',
-			array(
-				'current_board' => $board,
-			)
-		);
-		if ($smcFunc['db_num_rows']($request) == 0)
-		{
-			if ($output_method == 'echo')
-				die($txt['ssi_no_guests']);
-			else
-				return array();
-		}
-		list ($board) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		// Get some settings.
+		$this->_limit = $this->enable('limit') ? $this->setting('limit') : 5;
+		$this->_boards = $this->enable('boards') ? explode(',', $this->setting('boards')) : array();
+		$this->_start = isset($_GET['start']) ? (int) $_GET['start'] : 0;
 
 		// Load the message icons - the usual suspects.
 		$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
@@ -104,13 +59,13 @@ class Portal extends Ohara
 			SELECT t.id_first_msg
 			FROM {db_prefix}topics as t
 			LEFT JOIN {db_prefix}boards as b ON (b.id_board = t.id_board)
-			WHERE t.id_board = {int:current_board}' . ($modSettings['postmod_active'] ? '
+			WHERE t.id_board IN({array_int:boards})' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 				AND {query_see_board}
 			ORDER BY t.id_first_msg DESC
 			LIMIT ' . $start . ', ' . $limit,
 			array(
-				'current_board' => $board,
+				'boards' => $this->_boards,
 				'is_approved' => 1,
 			)
 		);
