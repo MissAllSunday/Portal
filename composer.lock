@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ea4a009ae356940c3aa333a0c28edab2",
+    "hash": "a6237558531bc01f9b29fe8844a9de4d",
     "packages": [
         {
             "name": "guzzle/guzzle",
@@ -160,6 +160,44 @@
             "time": "2014-06-25 07:40:19"
         },
         {
+            "name": "suki/ohara",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MissAllSunday/Ohara.git",
+                "reference": "543858e36ea167bafa9896f7dfc510a9a307927e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MissAllSunday/Ohara/zipball/543858e36ea167bafa9896f7dfc510a9a307927e",
+                "reference": "543858e36ea167bafa9896f7dfc510a9a307927e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MPL-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Jessica González",
+                    "email": "suki@missallsunday.com",
+                    "homepage": "http://missallsunday.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Helper class for SMF mods",
+            "homepage": "http://github.com/MissAllSunday/Ohara",
+            "keywords": [
+                "SMF",
+                "modifications"
+            ],
+            "time": "2014-06-30 17:49:12"
+        },
+        {
             "name": "symfony/event-dispatcher",
             "version": "v2.5.0",
             "target-dir": "Symfony/Component/EventDispatcher",
@@ -222,7 +260,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "suki/ohara": 20
+    },
     "platform": [],
     "platform-dev": []
 }
