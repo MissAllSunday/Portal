@@ -27,12 +27,38 @@ class Portal extends Ohara
 	{
 		global $context;
 
+		// Define some context vars.
+		$context[self::$name] = array(
+			'news' => array(),
+			'github' => array(
+				'repos' => false,
+				'user' => false,
+			),
+		);
+
 		// Set a canonical URL for this page.
 		$context['canonical_url'] = $scripturl . (!empty($page) && $page > 1 ? '?page='. $page : '');
 		$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']) . (!empty($page) && $page > 1 ? ' - Page '. $page : '');
 
 		// Get the news.
-		$context[self]['news'] = $this->getNews();
+		$context[self::$name]['news'] = $this->getNews();
+
+		// Get github data.
+		if ($this->status())
+		{
+			$this->github();
+
+			// Catch any runtime error.
+			try{
+				$this->_github->authenticate($this->setting('githubClient'), $this->setting('githubPass'), Github\Client::AUTH_URL_CLIENT_ID);
+				$context[self::$name]['github']['repos'] = $this->_github->api('user')->repositories('MissAllSunday');
+				$context[self::$name]['github']['user'] = false;
+			}
+			catch (RuntimeException $e)
+			{
+				log_error('issues with github API: '. $e->getMessage());
+			}
+		}
 	}
 
 	public function getNews()
@@ -151,5 +177,64 @@ class Portal extends Ohara
 		$return[count($return) - 1]['is_last'] = true;
 
 		return $return;
+	}
+
+	public function github()
+	{
+		global $boarddir;
+
+		$this->_github = new Github\Client(
+			new Github\HttpClient\CachedHttpClient(array('cache_dir' => $boarddir .'/cache/github-api-cache'))
+		);
+	}
+
+	public function status()
+	{
+		$v = json_decode($this->fetch_web_data('https://status.github.com/api/status.json'));
+
+		if (!empty($v) && is_object($v) && trim($v->status) == 'good')
+			return true;
+
+		else
+			return false;
+	}
+
+	/**
+	 * Tries to fetch the content of a given url
+	 *
+	 * @access protected
+	 * @param string $url the url to call
+	 * @return mixed either the page requested or a boolean false
+	 */
+	protected function fetch_web_data($url)
+	{
+		// Safety first!
+		if (empty($url))
+			return false;
+
+		// I can haz cURL?
+		if (function_exists ('curl_init'))
+		{
+			$ch = curl_init();
+
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_HEADER, false);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			$content = curl_exec($ch);
+			curl_close($ch);
+
+			// Send the data directly, evil, I'm evil! :P
+			return $content;
+		}
+
+		// Good old SMF's fetch_web_data to the rescue!
+		else
+		{
+			// Requires a function in a source file far far away...
+			require_once($this->_sourcedir .'/Subs-Package.php');
+
+			// Send the result directly, we are gonna handle it on every case.
+			return fetch_web_data($url);
+		}
 	}
 }
