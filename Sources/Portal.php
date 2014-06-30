@@ -72,6 +72,7 @@ class Portal extends Ohara
 		$config_vars[] = $this->text('title');
 		$config_vars[] = array('check', self::$name .'_enable', 'subtext' => $this->text('enable_sub'));
 		$config_vars[] = array('int', self::$name .'_limit', 'subtext' => $this->text('limit_sub'));
+		$config_vars[] = array('int', self::$name .'_maxLimit', 'subtext' => $this->text('maxLimit_sub'));
 		$config_vars[] = array('text', self::$name .'_boards', 'subtext' => $this->text('_sub'));
 		$config_vars[] = array('text', self::$name .'_githubClient', 'subtext' => $this->text('_sub'));
 		$config_vars[] = array('text', self::$name .'_githubPass', 'subtext' => $this->text('_sub'));
