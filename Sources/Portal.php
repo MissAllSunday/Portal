@@ -68,7 +68,7 @@ class Portal extends Ohara
 				AND t.approved = {int:is_approved}' : '') . '
 				AND {query_see_board}
 			ORDER BY t.id_first_msg DESC
-			LIMIT ' . $start . ', ' . $limit,
+			LIMIT ' . $this->_start . ', ' . $this->_limit,
 			array(
 				'boards' => $this->_boards,
 				'is_approved' => 1,
@@ -101,25 +101,6 @@ class Portal extends Ohara
 		$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			// If we want to limit the length of the post.
-			if (!empty($length) && $smcFunc['strlen']($row['body']) > $length)
-			{
-				$row['body'] = $smcFunc['substr']($row['body'], 0, $length);
-				$cutoff = false;
-
-				$last_space = strrpos($row['body'], ' ');
-				$last_open = strrpos($row['body'], '<');
-				$last_close = strrpos($row['body'], '>');
-				if (empty($last_space) || ($last_space == $last_open + 3 && (empty($last_close) || (!empty($last_close) && $last_close < $last_open))) || $last_space < $last_open || $last_open == $length - 6)
-					$cutoff = $last_open;
-				elseif (empty($last_close) || $last_close < $last_open)
-					$cutoff = $last_space;
-
-				if ($cutoff !== false)
-					$row['body'] = $smcFunc['substr']($row['body'], 0, $cutoff);
-				$row['body'] .= '...';
-			}
-
 			$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 			if (!empty($recycle_board) && $row['id_board'] == $recycle_board)
@@ -169,7 +150,6 @@ class Portal extends Ohara
 
 		$return[count($return) - 1]['is_last'] = true;
 
-		if ($output_method != 'echo')
-			return $return;
+		return $return;
 	}
 }
