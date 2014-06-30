@@ -1,0 +1,6 @@
+{
+	"name": "Suki/portal",
+	"require": {
+		"knplabs/github-api": "*"
+	}
+}
