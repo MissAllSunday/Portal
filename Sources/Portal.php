@@ -88,6 +88,7 @@ class Portal extends Ohara
 
 		// Get some settings.
 		$this->_limit = $this->enable('limit') ? $this->setting('limit') : 5;
+		$this->_maxLimit = $this->enable('maxLimit') ? $this->setting('limit') : 50;
 		$this->_boards = $this->enable('boards') ? explode(',', $this->setting('boards')) : array();
 		$this->_page = isset($_GET['page']) ? (int) $_GET['page'] : 0;
 
