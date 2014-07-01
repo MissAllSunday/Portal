@@ -48,6 +48,7 @@ class Portal extends Ohara
 		// Set a canonical URL for this page.
 		$context['canonical_url'] = $scripturl . (!empty($this->_page) && $this->_page > 1 ? '?page='. $this->_page : '');
 		$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']) . (!empty($this->_page) && $this->_page > 1 ? ' - Page '. $this->_page : '');
+		$context['sub_template'] = 'portal';
 
 		// Get github data.
 		if ($this->status())

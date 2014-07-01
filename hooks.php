@@ -16,6 +16,7 @@
 	$hooks = array(
 		'integrate_default_action' => '$sourcedir/Portal.php|Portal::init#',
 		'integrate_actions' => '$sourcedir/Portal.php|Portal::actions#',
+		'integrate_general_mod_settings' => '$sourcedir/Portal.php|Portal::settings#',
 	);
 
 	$call = 'add_integration_function';

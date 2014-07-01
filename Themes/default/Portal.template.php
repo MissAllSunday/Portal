@@ -8,7 +8,8 @@
  * @license http://www.mozilla.org/MPL/2.0/
  */
  
-function template_main()
+function template_portal()
 {
 	// Stuff here.
+	echo 'stuff';
 }

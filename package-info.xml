@@ -8,16 +8,13 @@
 	<type>modification</type>
 	<install for="2.1 Alpha 1, 2.1 - 2.1.99">
 		<code>hooks.php</code>
-		<require-file name="Sources/ActivityBar.php" destination="$sourcedir">The file that handles everything</require-file>
+		<require-file name="Sources/Portal.php" destination="$sourcedir">The file that handles everything</require-file>
 		<require-dir name="Themes" destination="$boarddir">Theme files</require-dir>
-		<require-dir name="vendor" destination="$boarddir">vendor dir</require-dir>
 		<redirect url="$scripturl?action=admin;area=modsettings;sa=general" timeout="2500"></redirect>
 	</install>
 
 	<uninstall for="2.1 Alpha 1, 2.1 - 2.1.99">
-		<readme type="inline">This will uninstall the Activity Bar mod. Thanks for using this mod.</readme>
 		<code>remove.php</code>
-		<modification reverse="true">ActivityBar.xml</modification>
 		<remove-file name="$sourcedir/Portal.php" />
 		<remove-file name="$themedir/Portal.template.php" />
 		<remove-file name="$languagedir/Portal.english.php" />
