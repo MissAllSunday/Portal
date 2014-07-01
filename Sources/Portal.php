@@ -25,7 +25,7 @@ class Portal extends Ohara
 
 	public function init()
 	{
-		global $context;
+		global $context, $txt, $scripturl;
 
 		// Mod is disabled.
 		if(!$this->setting('enable'))
@@ -83,7 +83,7 @@ class Portal extends Ohara
 	public function actions(&$actions)
 	{
 		// Redirect the boardIndex to action "forum".
-		$actions['forum'] = array('BoardIndex', 'BoardIndex');
+		$actions['forum'] = array('BoardIndex.php', 'BoardIndex');
 	}
 
 	public function getNews()
@@ -218,7 +218,7 @@ class Portal extends Ohara
 	{
 		$v = json_decode($this->fetch_web_data('https://status.github.com/api/status.json'));
 
-		if (!empty($v) && is_object($v) && trim($v->status) == 'good')
+		if (!empty($v) && trim($v->status) == 'good')
 			return true;
 
 		else
@@ -234,33 +234,16 @@ class Portal extends Ohara
 	 */
 	protected function fetch_web_data($url)
 	{
+		global $sourcedir;
+
 		// Safety first!
 		if (empty($url))
 			return false;
 
-		// I can haz cURL?
-		if (function_exists ('curl_init'))
-		{
-			$ch = curl_init();
+		// Requires a function in a source file far far away...
+		require_once($sourcedir .'/Subs-Package.php');
 
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_HEADER, false);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			$content = curl_exec($ch);
-			curl_close($ch);
-
-			// Send the data directly, evil, I'm evil! :P
-			return $content;
-		}
-
-		// Good old SMF's fetch_web_data to the rescue!
-		else
-		{
-			// Requires a function in a source file far far away...
-			require_once($this->_sourcedir .'/Subs-Package.php');
-
-			// Send the result directly, we are gonna handle it on every case.
-			return fetch_web_data($url);
-		}
+		// Send the result directly, we are gonna handle it on every case.
+		return fetch_web_data($url);
 	}
 }
