@@ -41,8 +41,8 @@ class Portal extends Suki\Ohara
 		$context[self::$name]['news'] = $this->getNews();
 
 		// Set a canonical URL for this page.
-		$context['canonical_url'] = $scripturl . (!empty($this->_page) && $this->_page > 1 ? '?page='. $this->_page : '');
-		$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']) . (!empty($this->_page) && $this->_page > 1 ? ' - Page '. $this->_page : '');
+		$context['canonical_url'] = $scripturl . (!empty($this->_start) && $this->_start > 1 ? '?news;start='. $this->_start : '');
+		$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']) . (!empty($this->_start) && $this->_start > 1 ? ' - Page '. $this->_start : '');
 		$context['sub_template'] = 'portal';
 
 		// Get github data.
@@ -52,9 +52,7 @@ class Portal extends Suki\Ohara
 
 			// Catch any runtime error.
 			try{
-				$this->_github->authenticate($this->setting('githubClient'), $this->setting('githubPass'), Github\Client::AUTH_URL_CLIENT_ID);
-				$context[self::$name]['github']['repos'] = $this->_github->api('user')->repositories($this->setting('githubUser'));
-				$context[self::$name]['github']['user'] = false;
+				$context[self::$name]['github']['user'] = $this->_github->api('user')->show($this->setting('githubUser'));
 			}
 			catch (RuntimeException $e)
 			{
@@ -146,10 +144,10 @@ class Portal extends Suki\Ohara
 		loadLanguage('Stats');
 
 		// Get some settings.
-		$this->_limit = $this->enable('limit') ? $this->setting('limit') : 5;
-		$this->_maxLimit = $this->enable('maxLimit') ? $this->setting('limit') : 50;
+		$this->_limit = $this->enable('limit') ? (int) $this->setting('limit') : 5;
+		$this->_maxLimit = $this->enable('maxLimit') ? (int) $this->setting('maxLimit') : 50;
 		$this->_boards = $this->enable('boards') ? explode(',', $this->setting('boards')) : array();
-		$this->_page = isset($_GET['page']) ? (int) $_GET['page'] : 0;
+		$this->_start = $this->validate('start') ? (int) $this->data('start') : 0;
 
 		// Load the message icons - the usual suspects.
 		$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
@@ -163,6 +161,11 @@ class Portal extends Suki\Ohara
 			$context['can_see_likes'] = allowedTo('likes_view');
 		}
 
+		$return = array(
+			'news' => array(),
+			'pagination' => constructPageIndex($scripturl . '?news', $this->_start, $this->_maxLimit, $this->_limit)
+		);
+
 		// Find the post ids.
 		$request = $smcFunc['db_query']('', '
 			SELECT t.id_first_msg
@@ -172,7 +175,7 @@ class Portal extends Suki\Ohara
 				AND t.approved = {int:is_approved}' : '') . '
 				AND {query_see_board}
 			ORDER BY t.id_first_msg DESC
-			LIMIT ' . $this->_page . ', ' . $this->_limit,
+			LIMIT ' . $this->_start . ', '. $this->_limit,
 			array(
 				'boards' => $this->_boards,
 				'is_approved' => 1,
@@ -201,7 +204,7 @@ class Portal extends Suki\Ohara
 				'post_list' => $posts,
 			)
 		);
-		$return = array();
+
 		$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
@@ -217,7 +220,7 @@ class Portal extends Suki\Ohara
 			censorText($row['subject']);
 			censorText($row['body']);
 
-			$return[] = array(
+			$return['news'][] = array(
 				'id' => $row['id_topic'],
 				'message_id' => $row['id_msg'],
 				'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" alt="' . $row['icon'] . '">',
@@ -252,7 +255,7 @@ class Portal extends Suki\Ohara
 		if (empty($return))
 			return $return;
 
-		$return[count($return) - 1]['is_last'] = true;
+		$return['news'][count($return) - 1]['is_last'] = true;
 
 		return $return;
 	}
