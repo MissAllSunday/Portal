@@ -89,11 +89,46 @@ class Portal extends Ohara
 
 	public function menu($menu)
 	{
-		$menu_buttons['home']['sub_buttons']['forum'] = array(
+		global $txt, $scripturl, $context;
+
+		$menu['home']['sub_buttons']['forum'] = array(
 			'title' => $this->text('forum_label'),
 			'href' => $scripturl . '?action=forum',
 			'show' => true,
 		);
+
+		// Unset the main search button.
+		unset($menu['search']);
+
+		// And add it as a sub button of home.
+		$menu['home']['sub_buttons']['search'] = array(
+			'title' => $txt['search'],
+			'href' => $scripturl . '?action=search',
+			'show' => $context['allow_search'],
+			'sub_buttons' => array(
+			),
+		);
+
+		// Same for members.
+		unset($menu['mlist']);
+		$menu['home']['sub_buttons']['mlist'] = array(
+				'title' => $txt['members_title'],
+				'href' => $scripturl . '?action=mlist',
+				'show' => $context['allow_memberlist'],
+				'sub_buttons' => array(
+					'mlist_view' => array(
+						'title' => $txt['mlist_menu_view'],
+						'href' => $scripturl . '?action=mlist',
+						'show' => true,
+					),
+					'mlist_search' => array(
+						'title' => $txt['mlist_search'],
+						'href' => $scripturl . '?action=mlist;sa=search',
+						'show' => true,
+						'is_last' => true,
+					),
+				),
+			)
 	}
 
 	public function linkTree()
