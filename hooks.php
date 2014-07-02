@@ -10,6 +10,7 @@
 
 	if (file_exists(dirname(__FILE__) . '/SSI.php') && !defined('SMF'))
 		require_once(dirname(__FILE__) . '/SSI.php');
+
 	elseif (!defined('SMF'))
 		exit('<b>Error:</b> Cannot install - please verify you put this in the same place as SMF\'s index.php.');
 
@@ -21,7 +22,5 @@
 		'integrate_menu_buttons' => '$sourcedir/Portal.php|Portal::menu#',
 	);
 
-	$call = 'add_integration_function';
-
 	foreach ($hooks as $hook => $function)
-		$call($hook, $function);
+		add_integration_function($hook, $function);
