@@ -87,6 +87,15 @@ class Portal extends Ohara
 		$actions['forum'] = array('BoardIndex.php', 'BoardIndex');
 	}
 
+	public function menu($menu)
+	{
+		$menu_buttons['home']['sub_buttons']['forum'] = array(
+			'title' => $this->text('forum_label'),
+			'href' => $scripturl . '?action=forum',
+			'show' => true,
+		);
+	}
+
 	public function linkTree()
 	{
 		global $context;
