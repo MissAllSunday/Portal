@@ -15,3 +15,4 @@ $txt['Portal_githubClient'] = 'github client';
 $txt['Portal_githubClient_sub'] = '';
 $txt['Portal_githubPass'] = 'github pass';
 $txt['Portal_githubPass_sub'] = '';
+$txt['Portal_forum_label'] = 'Forum';

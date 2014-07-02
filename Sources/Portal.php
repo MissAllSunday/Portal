@@ -74,9 +74,9 @@ class Portal extends Ohara
 		$config_vars[] = array('check', self::$name .'_enable', 'subtext' => $this->text('enable_sub'));
 		$config_vars[] = array('int', self::$name .'_limit', 'subtext' => $this->text('limit_sub'));
 		$config_vars[] = array('int', self::$name .'_maxLimit', 'subtext' => $this->text('maxLimit_sub'));
-		$config_vars[] = array('text', self::$name .'_boards', 'subtext' => $this->text('_sub'));
-		$config_vars[] = array('text', self::$name .'_githubClient', 'subtext' => $this->text('_sub'));
-		$config_vars[] = array('text', self::$name .'_githubPass', 'subtext' => $this->text('_sub'));
+		$config_vars[] = array('text', self::$name .'_boards', 'subtext' => $this->text('boards_sub'));
+		$config_vars[] = array('text', self::$name .'_githubClient', 'subtext' => $this->text('githubClient_sub'));
+		$config_vars[] = array('text', self::$name .'_githubPass', 'subtext' => $this->text('githubPass_sub'));
 		$config_vars[] = '';
 	}
 
@@ -84,6 +84,16 @@ class Portal extends Ohara
 	{
 		// Redirect the boardIndex to action "forum".
 		$actions['forum'] = array('BoardIndex.php', 'BoardIndex');
+	}
+
+	public function linkTree()
+	{
+		global $context;
+
+		$context['linktree'][] = array(
+			'url' => $scripturl . '?action=forum',
+			'name' => $this->text('forum_label')
+		);
 	}
 
 	public function getNews()
