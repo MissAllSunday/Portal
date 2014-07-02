@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a6237558531bc01f9b29fe8844a9de4d",
+    "hash": "6f95d1bd6408b352c752598d4ae52f09",
     "packages": [
         {
             "name": "guzzle/guzzle",
@@ -100,16 +100,16 @@
         },
         {
             "name": "knplabs/github-api",
-            "version": "1.2.5",
+            "version": "1.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/KnpLabs/php-github-api.git",
-                "reference": "a462c357aa0503bd7fc94da889517de98c2c4ec0"
+                "reference": "6ee8ad85e4d4a82e8ab92ac76fd14671dbba5158"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/KnpLabs/php-github-api/zipball/a462c357aa0503bd7fc94da889517de98c2c4ec0",
-                "reference": "a462c357aa0503bd7fc94da889517de98c2c4ec0",
+                "url": "https://api.github.com/repos/KnpLabs/php-github-api/zipball/6ee8ad85e4d4a82e8ab92ac76fd14671dbba5158",
+                "reference": "6ee8ad85e4d4a82e8ab92ac76fd14671dbba5158",
                 "shasum": ""
             },
             "require": {
@@ -157,7 +157,7 @@
                 "gist",
                 "github"
             ],
-            "time": "2014-06-25 07:40:19"
+            "time": "2014-07-01 12:09:42"
         },
         {
             "name": "suki/ohara",
@@ -165,18 +165,23 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/MissAllSunday/Ohara.git",
-                "reference": "543858e36ea167bafa9896f7dfc510a9a307927e"
+                "reference": "c5e604733a15bb063c3806e81fa387a3197485b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MissAllSunday/Ohara/zipball/543858e36ea167bafa9896f7dfc510a9a307927e",
-                "reference": "543858e36ea167bafa9896f7dfc510a9a307927e",
+                "url": "https://api.github.com/repos/MissAllSunday/Ohara/zipball/c5e604733a15bb063c3806e81fa387a3197485b0",
+                "reference": "c5e604733a15bb063c3806e81fa387a3197485b0",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
             },
             "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Suki": "src/"
+                }
+            },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MPL-2.0"
@@ -195,7 +200,7 @@
                 "SMF",
                 "modifications"
             ],
-            "time": "2014-06-30 17:49:12"
+            "time": "2014-07-02 18:54:56"
         },
         {
             "name": "symfony/event-dispatcher",

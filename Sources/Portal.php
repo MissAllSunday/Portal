@@ -11,17 +11,12 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-class Portal extends Ohara
+// Use composer!
+require_once ($boarddir .'/vendor/autoload.php');
+
+class Portal extends Suki\Ohara
 {
 	public static $name = __CLASS__;
-
-	public function __construct()
-	{
-		global $boarddir;
-
-		// Use composer!
-		require_once ($boarddir .'/vendor/autoload.php');
-	}
 
 	public function init()
 	{
@@ -133,12 +128,14 @@ class Portal extends Ohara
 
 	public function linkTree()
 	{
-		global $context;
+		global $context, $scripturl;
 
-		$context['linktree'][] = array(
-			'url' => $scripturl . '?action=forum',
-			'name' => $this->text('forum_label')
-		);
+		// Only add this if we're on the forum action
+		if ($this->data('action') == 'forum')
+			$context['linktree'][] = array(
+				'url' => $scripturl . '?action=forum',
+				'name' => $this->text('forum_label')
+			);
 	}
 
 	public function getNews()
