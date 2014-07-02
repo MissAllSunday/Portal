@@ -58,7 +58,7 @@ class Portal extends Ohara
 			// Catch any runtime error.
 			try{
 				$this->_github->authenticate($this->setting('githubClient'), $this->setting('githubPass'), Github\Client::AUTH_URL_CLIENT_ID);
-				$context[self::$name]['github']['repos'] = $this->_github->api('user')->repositories('MissAllSunday');
+				$context[self::$name]['github']['repos'] = $this->_github->api('user')->repositories($this->setting('githubUser'));
 				$context[self::$name]['github']['user'] = false;
 			}
 			catch (RuntimeException $e)
@@ -75,6 +75,7 @@ class Portal extends Ohara
 		$config_vars[] = array('int', self::$name .'_limit', 'subtext' => $this->text('limit_sub'));
 		$config_vars[] = array('int', self::$name .'_maxLimit', 'subtext' => $this->text('maxLimit_sub'));
 		$config_vars[] = array('text', self::$name .'_boards', 'subtext' => $this->text('boards_sub'));
+		$config_vars[] = array('text', self::$name .'_githubUser', 'subtext' => $this->text('githubUser_sub'));
 		$config_vars[] = array('text', self::$name .'_githubClient', 'subtext' => $this->text('githubClient_sub'));
 		$config_vars[] = array('text', self::$name .'_githubPass', 'subtext' => $this->text('githubPass_sub'));
 		$config_vars[] = '';
