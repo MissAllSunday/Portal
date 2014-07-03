@@ -51,9 +51,12 @@ class Portal extends Suki\Ohara
 			$this->github();
 
 			// Catch any runtime error.
-			try{
+			try
+			{
+				$this->_github->authenticate($this->setting('githubClient'), $this->setting('githubPass'), Github\Client::AUTH_URL_CLIENT_ID);
 				$context[self::$name]['github']['user'] = $this->_github->api('user')->show($this->setting('githubUser'));
 			}
+
 			catch (RuntimeException $e)
 			{
 				log_error('issues with github API: '. $e->getMessage());
