@@ -43,7 +43,7 @@ class Portal extends Suki\Ohara
 		loadTemplate($this->name);
 
 		// Get the news.
-		$context[$this->name]['news'] = $this->getNews();
+		$context[$this->name] = array_merge($context[$this->name], $this->getNews());
 
 		// Set a canonical URL for this page.
 		$context['canonical_url'] = $scripturl . (!empty($this->_start) && $this->_start > 1 ? '?news;start='. $this->_start : '');
