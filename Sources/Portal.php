@@ -16,7 +16,7 @@ require_once ($boarddir .'/vendor/autoload.php');
 
 class Portal extends Suki\Ohara
 {
-	public static $name = __CLASS__;
+	public $name = __CLASS__;
 
 	public function init()
 	{
@@ -27,7 +27,7 @@ class Portal extends Suki\Ohara
 			return;
 
 		// Define some context vars.
-		$context[self::$name] = array(
+		$context[$this->name] = array(
 			'news' => array(),
 			'github' => array(
 				'repos' => false,
@@ -35,10 +35,10 @@ class Portal extends Suki\Ohara
 			),
 		);
 
-		loadTemplate(self::$name);
+		loadTemplate($this->name);
 
 		// Get the news.
-		$context[self::$name]['news'] = $this->getNews();
+		$context[$this->name]['news'] = $this->getNews();
 
 		// Set a canonical URL for this page.
 		$context['canonical_url'] = $scripturl . (!empty($this->_start) && $this->_start > 1 ? '?news;start='. $this->_start : '');
@@ -54,7 +54,7 @@ class Portal extends Suki\Ohara
 			try
 			{
 				$this->_github->authenticate($this->setting('githubClient'), $this->setting('githubPass'), Github\Client::AUTH_URL_CLIENT_ID);
-				$context[self::$name]['github']['user'] = $this->_github->api('user')->show($this->setting('githubUser'));
+				$context[$this->name]['github']['user'] = $this->_github->api('user')->show($this->setting('githubUser'));
 			}
 
 			catch (RuntimeException $e)
@@ -67,13 +67,13 @@ class Portal extends Suki\Ohara
 	public function settings(&$config_vars)
 	{
 		$config_vars[] = $this->text('title');
-		$config_vars[] = array('check', self::$name .'_enable', 'subtext' => $this->text('enable_sub'));
-		$config_vars[] = array('int', self::$name .'_limit', 'subtext' => $this->text('limit_sub'));
-		$config_vars[] = array('int', self::$name .'_maxLimit', 'subtext' => $this->text('maxLimit_sub'));
-		$config_vars[] = array('text', self::$name .'_boards', 'subtext' => $this->text('boards_sub'));
-		$config_vars[] = array('text', self::$name .'_githubUser', 'subtext' => $this->text('githubUser_sub'));
-		$config_vars[] = array('text', self::$name .'_githubClient', 'subtext' => $this->text('githubClient_sub'));
-		$config_vars[] = array('text', self::$name .'_githubPass', 'subtext' => $this->text('githubPass_sub'));
+		$config_vars[] = array('check', $this->name .'_enable', 'subtext' => $this->text('enable_sub'));
+		$config_vars[] = array('int', $this->name .'_limit', 'subtext' => $this->text('limit_sub'));
+		$config_vars[] = array('int', $this->name .'_maxLimit', 'subtext' => $this->text('maxLimit_sub'));
+		$config_vars[] = array('text', $this->name .'_boards', 'subtext' => $this->text('boards_sub'));
+		$config_vars[] = array('text', $this->name .'_githubUser', 'subtext' => $this->text('githubUser_sub'));
+		$config_vars[] = array('text', $this->name .'_githubClient', 'subtext' => $this->text('githubClient_sub'));
+		$config_vars[] = array('text', $this->name .'_githubPass', 'subtext' => $this->text('githubPass_sub'));
 		$config_vars[] = '';
 	}
 
