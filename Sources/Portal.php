@@ -18,6 +18,11 @@ class Portal extends Suki\Ohara
 {
 	public $name = __CLASS__;
 
+	public function __construct()
+	{
+		$this->setRegistry();
+	}
+
 	public function init()
 	{
 		global $context, $txt, $scripturl;
