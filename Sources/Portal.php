@@ -171,7 +171,7 @@ class Portal extends Suki\Ohara
 
 		$return = array(
 			'news' => array(),
-			'pagination' => constructPageIndex($scripturl . '?news;start=', $this->_start, $this->_maxLimit, $this->_limit)
+			'pagination' => constructPageIndex($scripturl . '?news', $this->_start, $this->_maxLimit, $this->_limit)
 		);
 
 		// Find the post ids.
