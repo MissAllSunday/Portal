@@ -158,9 +158,8 @@ class Portal extends Suki\Ohara
 		$this->_start = $this->validate('start') ? (int) $this->data('start') : 0;
 
 		// Load the message icons - the usual suspects.
-		$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
 		$icon_sources = array();
-		foreach ($stable_icons as $icon)
+		foreach ($context['stable_icons'] as $icon)
 			$icon_sources[$icon] = 'images_url';
 
 		if (!empty($modSettings['enable_likes']))
