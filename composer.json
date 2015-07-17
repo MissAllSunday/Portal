@@ -2,6 +2,6 @@
 	"name": "suki/portal",
 	"require": {
 		"knplabs/github-api": "*",
-		"suki/ohara": "dev-master"
+		"suki/ohara": "~1.0"
 	}
 }
