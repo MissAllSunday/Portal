@@ -36,10 +36,6 @@ class Portal extends Suki\Ohara
 	{
 		global $context, $txt;
 
-		// Mod is disabled.
-		if(!$this->setting('enable'))
-			return;
-
 		// Define some context vars.
 		$context[$this->name] = array(
 			'news' => array(),
