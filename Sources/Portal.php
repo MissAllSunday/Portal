@@ -18,12 +18,21 @@ class Portal extends Suki\Ohara
 {
 	public $name = __CLASS__;
 
+	// Define the hooks we are going to use.
+	protected $_availableHooks = array(
+		'init' => 'integrate_default_action',
+		'actions' => 'integrate_actions',
+		'settings' => 'integrate_general_mod_settings',
+		'linktree' => 'integrate_mark_read_button',
+		'menu' => 'integrate_menu_buttons',
+	);
+
 	public function __construct()
 	{
 		$this->setRegistry();
 	}
 
-	public function init()
+	public function addInit()
 	{
 		global $context, $txt, $scripturl;
 
@@ -69,7 +78,7 @@ class Portal extends Suki\Ohara
 		}
 	}
 
-	public function settings(&$config_vars)
+	public function addSettings(&$config_vars)
 	{
 		$config_vars[] = $this->text('title');
 		$config_vars[] = array('check', $this->name .'_enable', 'subtext' => $this->text('enable_sub'));
@@ -82,13 +91,13 @@ class Portal extends Suki\Ohara
 		$config_vars[] = '';
 	}
 
-	public function actions(&$actions)
+	public function addActions(&$actions)
 	{
 		// Redirect the boardIndex to action "forum".
 		$actions['forum'] = array('BoardIndex.php', 'BoardIndex');
 	}
 
-	public function menu(&$buttons)
+	public function addMenu(&$buttons)
 	{
 		global $txt, $scripturl, $context;
 
@@ -132,7 +141,7 @@ class Portal extends Suki\Ohara
 		);
 	}
 
-	public function linkTree()
+	public function addLinkTree()
 	{
 		global $context, $scripturl;
 
