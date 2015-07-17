@@ -15,6 +15,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 		<hook function="Portal::runTimeHooks" hook="integrate_pre_load" file="$sourcedir/Portal.php" object="true"></hook>
 		<credits url="http://missallsunday.com" license="MPL 2.0" copyright="Suki" licenseurl="https://www.mozilla.org/MPL/2.0/">Custom portal mod</credits>
 		<require-file name="Sources/Portal.php" destination="$sourcedir">The file that handles everything</require-file>
+		<require-dir name="Sources/ohara" destination="$sourcedir">Source library</require-dir>
+		<require-dir name="vendor" destination="$boarddir">vendor folder</require-dir>
 		<require-dir name="Themes" destination="$boarddir">Theme files</require-dir>
 		<redirect url="$scripturl?action=admin;area=modsettings;sa=general" timeout="2500"></redirect>
 	</install>

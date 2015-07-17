@@ -34,7 +34,7 @@ class Portal extends Suki\Ohara
 
 	public function addInit()
 	{
-		global $context, $txt, $scripturl;
+		global $context, $txt;
 
 		// Mod is disabled.
 		if(!$this->setting('enable'))
@@ -55,7 +55,7 @@ class Portal extends Suki\Ohara
 		$context[$this->name] = array_merge($context[$this->name], $this->getNews());
 
 		// Set a canonical URL for this page.
-		$context['canonical_url'] = $scripturl . (!empty($this->_start) && $this->_start > 1 ? '?news;start='. $this->_start : '');
+		$context['canonical_url'] = $this->scriptUrl . (!empty($this->_start) && $this->_start > 1 ? '?news;start='. $this->_start : '');
 		$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']) . (!empty($this->_start) && $this->_start > 1 ? ' - Page '. $this->_start : '');
 		$context['sub_template'] = 'portal';
 
@@ -93,6 +93,10 @@ class Portal extends Suki\Ohara
 
 	public function addActions(&$actions)
 	{
+		// Mod is disabled.
+		if(!$this->setting('enable'))
+			return;
+
 		// Redirect the boardIndex to action "forum".
 		$actions['forum'] = array('BoardIndex.php', 'BoardIndex');
 	}
@@ -100,6 +104,10 @@ class Portal extends Suki\Ohara
 	public function addMenu(&$buttons)
 	{
 		global $txt, $scripturl, $context;
+
+		// Mod is disabled.
+		if(!$this->setting('enable'))
+			return;
 
 		$buttons['home']['sub_buttons']['forum'] = array(
 			'title' => $this->text('forum_label'),
@@ -146,7 +154,7 @@ class Portal extends Suki\Ohara
 		global $context, $scripturl;
 
 		// Only add this if we're on the forum action
-		if ($this->data('action') == 'forum')
+		if ($this->setting('enable') && $this->data('action') == 'forum')
 			$context['linktree'][] = array(
 				'url' => $scripturl . '?action=forum',
 				'name' => $this->text('forum_label')
