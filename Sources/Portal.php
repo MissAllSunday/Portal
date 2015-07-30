@@ -36,13 +36,19 @@ class Portal extends Suki\Ohara
 	{
 		global $context, $txt;
 
+		// Don't really need any of these.
+		unset($context['css_files']['index.css'], $context['css_files']['responsive.css'], $context['css_files']['jquery.custom-scrollbar.css']);
+
+		// Load what we need.
+		loadCSSFile('//storage.googleapis.com/code.getmdl.io/1.0.2/material.deep_orange-orange.min.css', array('external' => true));
+		loadCSSFile('//fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en', array('external' => true));
+		loadCSSFile('//fonts.googleapis.com/icon?family=Material+Icons', array('external' => true));
+		loadCSSFile('styles.css');
+		loadJavascriptFile('//storage.googleapis.com/code.getmdl.io/1.0.2/material.min.js', array('external' => true, 'defer' => true));
+
 		// Define some context vars.
 		$context[$this->name] = array(
 			'news' => array(),
-			'github' => array(
-				'repos' => false,
-				'user' => false,
-			),
 		);
 
 		loadTemplate($this->name);
@@ -53,7 +59,6 @@ class Portal extends Suki\Ohara
 		// Set a canonical URL for this page.
 		$context['canonical_url'] = $this->scriptUrl . (!empty($this->_start) && $this->_start > 1 ? '?news;start='. $this->_start : '');
 		$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']) . (!empty($this->_start) && $this->_start > 1 ? ' - Page '. $this->_start : '');
-		$context['sub_template'] = 'portal';
 
 		// Get github data.
 		if ($this->status())
@@ -72,6 +77,16 @@ class Portal extends Suki\Ohara
 				log_error('issues with github API: '. $e->getMessage());
 			}
 		}
+
+		// Clean everything up!
+		$context['template_layers'] = array();
+		$context['sub_template'] = 'portal_main';
+
+		// Load what we need when we need it.
+		$context['template_layers'] = array(
+			'html',
+			'portal',
+		);
 	}
 
 	public function addSettings(&$config_vars)
