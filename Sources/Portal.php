@@ -25,6 +25,7 @@ class Portal extends Suki\Ohara
 		'settings' => 'integrate_general_mod_settings',
 		'linktree' => 'integrate_mark_read_button',
 		'menu' => 'integrate_menu_buttons',
+		'menuChanges' => 'integrate_current_action',
 	);
 
 	public function __construct()
@@ -158,6 +159,12 @@ class Portal extends Suki\Ohara
 				),
 			),
 		);
+	}
+
+	public function addMenuChanges()
+	{
+		global $context;
+
 	}
 
 	public function addLinkTree()
