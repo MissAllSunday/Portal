@@ -10,26 +10,34 @@
 
 function template_portal_above()
 {
-	global $context;
+	global $context, $txt;
 
 	echo '
 	<div class="portal mdl-layout mdl-js-layout has-drawer is-upgraded">
 		<header class="mdl-layout__header mdl-layout__header--transparent">
 			<div class="mdl-layout__header-row">
-				<!-- Title -->
 				<span class="mdl-layout-title">', $context['page_title'] ,'</span>
-				<!-- Add spacer, to align navigation to the right -->
 				<div class="mdl-layout-spacer"></div>
-				<!-- Navigation -->
 				<nav class="mdl-navigation">
-				<a class="mdl-navigation__link" href="">Forum</a>
-				<a class="mdl-navigation__link" href="">Profile</a>
-				<a class="mdl-navigation__link" href="">Other Link</a>
-				<a class="mdl-navigation__link" href="">Link</a>
+					<a class="mdl-navigation__link" href="">Forum</a>
 				</nav>
 			</div>
 		</header>
 		<div class="mdl-layout__drawer">
+			', $context['user']['avatar']['image'] ,'
+			<div class="demo-avatar-dropdown">
+				<span>', $context['user']['name'] ,'</span>
+				<div class="mdl-layout-spacer"></div>
+				<button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+					<i class="material-icons" role="presentation">arrow_drop_down</i>
+					<span class="visuallyhidden">Accounts</span>
+				</button>
+				<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
+					<li class="mdl-menu__item"><a href="#">hello@example.com</a></li>
+					<li class="mdl-menu__item">info@example.com</li>
+					<li class="mdl-menu__item"><i class="material-icons">add</i>Add another account...</li>
+				</ul>
+			</div>
 			<nav class="mdl-navigation">';
 
 	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes.

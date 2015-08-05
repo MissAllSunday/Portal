@@ -25,7 +25,6 @@ class Portal extends Suki\Ohara
 		'settings' => 'integrate_general_mod_settings',
 		'linktree' => 'integrate_mark_read_button',
 		'menu' => 'integrate_menu_buttons',
-		'menuChanges' => 'integrate_current_action',
 	);
 
 	public function __construct()
@@ -121,6 +120,15 @@ class Portal extends Suki\Ohara
 		if(!$this->setting('enable'))
 			return;
 
+		$context['main_menu'] = array(
+			'forum' => array(
+				'title' => $this->text('forum_label'),
+				'href' => $scripturl . '?action=forum',
+				'show' => true,
+			),
+			'profile' => $buttons['profile'],
+		);
+
 		$buttons['home']['sub_buttons']['forum'] = array(
 			'title' => $this->text('forum_label'),
 			'href' => $scripturl . '?action=forum',
@@ -159,12 +167,6 @@ class Portal extends Suki\Ohara
 				),
 			),
 		);
-	}
-
-	public function addMenuChanges()
-	{
-		global $context;
-
 	}
 
 	public function addLinkTree()
