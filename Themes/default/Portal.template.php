@@ -10,7 +10,7 @@
 
 function template_portal_above()
 {
-	global $context, $txt;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div class="portal mdl-layout mdl-js-layout has-drawer is-upgraded">
@@ -28,14 +28,11 @@ function template_portal_above()
 			<div class="demo-avatar-dropdown">
 				<span>', $context['user']['name'] ,'</span>
 				<div class="mdl-layout-spacer"></div>
-				<button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+				<button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" data-url="' . $scripturl . '?action=profile;area=popup">
 					<i class="material-icons" role="presentation">arrow_drop_down</i>
 					<span class="visuallyhidden">Accounts</span>
 				</button>
-				<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
-					<li class="mdl-menu__item"><a href="#">hello@example.com</a></li>
-					<li class="mdl-menu__item">info@example.com</li>
-					<li class="mdl-menu__item"><i class="material-icons">add</i>Add another account...</li>
+				<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect accbtn_holder" for="accbtn">
 				</ul>
 			</div>
 			<nav class="mdl-navigation">';

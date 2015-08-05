@@ -45,6 +45,7 @@ class Portal extends Suki\Ohara
 		loadCSSFile('//fonts.googleapis.com/icon?family=Material+Icons', array('external' => true));
 		loadCSSFile('styles.css');
 		loadJavascriptFile('//storage.googleapis.com/code.getmdl.io/1.0.2/material.min.js', array('external' => true, 'defer' => true));
+		loadJavascriptFile('portal.js', array('defer' => true, 'default_theme'=> true));
 
 		// Define some context vars.
 		$context[$this->name] = array(
@@ -119,15 +120,6 @@ class Portal extends Suki\Ohara
 		// Mod is disabled.
 		if(!$this->setting('enable'))
 			return;
-
-		$context['main_menu'] = array(
-			'forum' => array(
-				'title' => $this->text('forum_label'),
-				'href' => $scripturl . '?action=forum',
-				'show' => true,
-			),
-			'profile' => $buttons['profile'],
-		);
 
 		$buttons['home']['sub_buttons']['forum'] = array(
 			'title' => $this->text('forum_label'),
