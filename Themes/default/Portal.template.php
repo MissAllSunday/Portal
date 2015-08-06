@@ -25,7 +25,7 @@ function template_portal_above()
 		</header>
 		<div class="mdl-layout__drawer">
 			', $context['user']['avatar']['image'] ,'
-			<div class="demo-avatar-dropdown">
+			<div class="main-menu-avatar-dropdown">
 				<span>', $context['user']['name'] ,'</span>
 				<div class="mdl-layout-spacer"></div>
 				<button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" data-url="' . $scripturl . '?action=profile;area=popup">
@@ -41,9 +41,29 @@ function template_portal_above()
 	foreach ($context['menu_buttons'] as $act => $button)
 	{
 		echo '
-				<a class="mdl-navigation__link ', $button['active_button'] ? ' active' : '', '" href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
-					', $button['title'], '
-				</a>';
+				<div class="mdl-navigation__link', $button['active_button'] ? ' active' : '', '">
+					<a  href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
+						', $button['title'], '
+					</a>
+					', (!empty($button['sub_buttons']) ? '<i class="material-icons sub_menu_button" data-for="sub_menu_list_'. $act .'">keyboard_arrow_down</i>' : '') ,'
+				</div>';
+
+		if (!empty($button['sub_buttons']))
+		{
+			echo '
+				<nav class="mdl-navigation sub_menu_list" id="sub_menu_list_', $act ,'">';
+
+			foreach ($button['sub_buttons'] as $childbutton)
+			{
+				echo '
+
+					<a class="mdl-navigation__link sub_menu" href="', $childbutton['href'], '"' , isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', '>
+										', $childbutton['title'], '
+									</a>';
+			}
+				echo '
+				</nav>';
+		}
 	}
 
 	echo '
