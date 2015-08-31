@@ -25,6 +25,7 @@ class Portal extends Suki\Ohara
 		'settings' => 'integrate_general_mod_settings',
 		'linktree' => 'integrate_mark_read_button',
 		'menu' => 'integrate_menu_buttons',
+		'menuActions' => 'integrate_current_action',
 	);
 
 	public function __construct()
@@ -125,6 +126,7 @@ class Portal extends Suki\Ohara
 			'title' => $this->text('forum_label'),
 			'href' => $scripturl . '?action=forum',
 			'show' => true,
+			'action_hook' => true,
 		);
 
 		// Unset the main search button.
@@ -159,6 +161,13 @@ class Portal extends Suki\Ohara
 				),
 			),
 		);
+	}
+
+	public function addMenuActions(&$dummy)
+	{
+		global $context;
+
+		$context['lol'] = 'lol';
 	}
 
 	public function addLinkTree()

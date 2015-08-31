@@ -10,7 +10,7 @@
 
 function template_portal_above()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
 	<div class="portal mdl-layout mdl-js-layout has-drawer is-upgraded">
