@@ -41,11 +41,8 @@ class Portal extends Suki\Ohara
 		unset($context['css_files']['index.css'], $context['css_files']['responsive.css'], $context['css_files']['jquery.custom-scrollbar.css']);
 
 		// Load what we need.
-		loadCSSFile('//storage.googleapis.com/code.getmdl.io/1.0.2/material.deep_orange-orange.min.css', array('external' => true));
 		loadCSSFile('//fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en', array('external' => true));
 		loadCSSFile('//fonts.googleapis.com/icon?family=Material+Icons', array('external' => true));
-		loadCSSFile('styles.css');
-		loadJavascriptFile('//storage.googleapis.com/code.getmdl.io/1.0.2/material.min.js', array('external' => true, 'defer' => true));
 		loadJavascriptFile('portal.js', array('defer' => true, 'default_theme'=> true));
 
 		// Define some context vars.
