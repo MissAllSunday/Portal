@@ -13,20 +13,11 @@ if (!defined('SMF'))
 
 // Use composer!
 require_once ($boarddir .'/vendor/autoload.php');
+require_once ($sourcedir .'/ohara/src/Suki/Ohara.php');
 
 class Portal extends Suki\Ohara
 {
 	public $name = __CLASS__;
-
-	// Define the hooks we are going to use.
-	protected $_availableHooks = array(
-		'init' => 'integrate_default_action',
-		'actions' => 'integrate_actions',
-		'settings' => 'integrate_general_mod_settings',
-		'linktree' => 'integrate_mark_read_button',
-		'menu' => 'integrate_menu_buttons',
-		'menuActions' => 'integrate_current_action',
-	);
 
 	public function __construct()
 	{
@@ -36,14 +27,6 @@ class Portal extends Suki\Ohara
 	public function addInit()
 	{
 		global $context, $txt;
-
-		// Don't really need any of these.
-		unset($context['css_files']['index.css'], $context['css_files']['responsive.css'], $context['css_files']['jquery.custom-scrollbar.css']);
-
-		// Load what we need.
-		loadCSSFile('//fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en', array('external' => true));
-		loadCSSFile('//fonts.googleapis.com/icon?family=Material+Icons', array('external' => true));
-		loadJavascriptFile('portal.js', array('defer' => true, 'default_theme'=> true));
 
 		// Define some context vars.
 		$context[$this->name] = array(
@@ -163,8 +146,6 @@ class Portal extends Suki\Ohara
 	public function addMenuActions(&$dummy)
 	{
 		global $context;
-
-		$context['lol'] = 'lol';
 	}
 
 	public function addLinkTree()
