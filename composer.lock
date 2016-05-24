@@ -204,16 +204,16 @@
         },
         {
             "name": "knplabs/github-api",
-            "version": "1.6.0",
+            "version": "1.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/KnpLabs/php-github-api.git",
-                "reference": "5720f828ea241eded6c6263249fa00b0a37650f4"
+                "reference": "f77df24a154cdf7461a7ff2712ef271f03a6b85b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/KnpLabs/php-github-api/zipball/5720f828ea241eded6c6263249fa00b0a37650f4",
-                "reference": "5720f828ea241eded6c6263249fa00b0a37650f4",
+                "url": "https://api.github.com/repos/KnpLabs/php-github-api/zipball/f77df24a154cdf7461a7ff2712ef271f03a6b85b",
+                "reference": "f77df24a154cdf7461a7ff2712ef271f03a6b85b",
                 "shasum": ""
             },
             "require": {
@@ -262,7 +262,7 @@
                 "gist",
                 "github"
             ],
-            "time": "2016-02-24 05:52:33"
+            "time": "2016-05-20 09:54:41"
         },
         {
             "name": "suki/ohara",
