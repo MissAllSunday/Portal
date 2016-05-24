@@ -96,7 +96,7 @@ class Portal extends Suki\Ohara
 
 	public function addMenu(&$buttons)
 	{
-		global $txt, $scripturl, $context;
+		global $txt, $context;
 
 		// Mod is disabled.
 		if(!$this->setting('enable'))
@@ -104,7 +104,7 @@ class Portal extends Suki\Ohara
 
 		$buttons['home']['sub_buttons']['forum'] = array(
 			'title' => $this->text('forum_label'),
-			'href' => $scripturl . '?action=forum',
+			'href' => $this->scriptUrl . '?action=forum',
 			'show' => true,
 			'action_hook' => true,
 		);
@@ -115,7 +115,7 @@ class Portal extends Suki\Ohara
 		// And add it as a sub button of home.
 		$buttons['home']['sub_buttons']['search'] = array(
 			'title' => $txt['search'],
-			'href' => $scripturl . '?action=search',
+			'href' => $this->scriptUrl . '?action=search',
 			'show' => $context['allow_search'],
 			'sub_buttons' => array(
 			),
@@ -125,17 +125,17 @@ class Portal extends Suki\Ohara
 		unset($buttons['mlist']);
 		$buttons['home']['sub_buttons']['mlist'] = array(
 			'title' => $txt['members_title'],
-			'href' => $scripturl . '?action=mlist',
+			'href' => $this->scriptUrl . '?action=mlist',
 			'show' => $context['allow_memberlist'],
 			'sub_buttons' => array(
 				'mlist_view' => array(
 					'title' => $txt['mlist_menu_view'],
-					'href' => $scripturl . '?action=mlist',
+					'href' => $this->scriptUrl . '?action=mlist',
 					'show' => true,
 				),
 				'mlist_search' => array(
 					'title' => $txt['mlist_search'],
-					'href' => $scripturl . '?action=mlist;sa=search',
+					'href' => $this->scriptUrl . '?action=mlist;sa=search',
 					'show' => true,
 					'is_last' => true,
 				),
@@ -150,19 +150,19 @@ class Portal extends Suki\Ohara
 
 	public function addLinkTree()
 	{
-		global $context, $scripturl;
+		global $context;
 
 		// Only add this if we're on the forum action
 		if ($this->setting('enable') && $this->data('action') == 'forum')
 			$context['linktree'][] = array(
-				'url' => $scripturl . '?action=forum',
+				'url' => $this->scriptUrl . '?action=forum',
 				'name' => $this->text('forum_label')
 			);
 	}
 
 	public function getNews()
 	{
-		global $scripturl, $txt, $settings, $modSettings, $context;
+		global $txt, $settings, $context;
 		global $smcFunc;
 
 		loadLanguage('Stats');
@@ -178,7 +178,7 @@ class Portal extends Suki\Ohara
 		foreach ($context['stable_icons'] as $icon)
 			$icon_sources[$icon] = 'images_url';
 
-		if (!empty($modSettings['enable_likes']))
+		if (!empty($this->modSetting('enable_likes')))
 		{
 			$context['can_like'] = allowedTo('likes_like');
 			$context['can_see_likes'] = allowedTo('likes_view');
@@ -186,7 +186,7 @@ class Portal extends Suki\Ohara
 
 		$return = array(
 			'news' => array(),
-			'pagination' => constructPageIndex($scripturl . '?news', $this->_start, $this->_maxLimit, $this->_limit)
+			'pagination' => constructPageIndex($this->scriptUrl . '?news', $this->_start, $this->_maxLimit, $this->_limit)
 		);
 
 		// Find the post ids.
@@ -194,7 +194,7 @@ class Portal extends Suki\Ohara
 			SELECT t.id_first_msg
 			FROM {db_prefix}topics as t
 			LEFT JOIN {db_prefix}boards as b ON (b.id_board = t.id_board)
-			WHERE t.id_board IN({array_int:boards})' . ($modSettings['postmod_active'] ? '
+			WHERE t.id_board IN({array_int:boards})' . ($this->modSetting('postmod_active') ? '
 				AND t.approved = {int:is_approved}' : '') . '
 				AND {query_see_board}
 			ORDER BY t.id_first_msg DESC
@@ -228,7 +228,7 @@ class Portal extends Suki\Ohara
 			)
 		);
 
-		$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
+		$recycle_board = $this->modSetting('recycle_enable') && $this->modSetting('recycle_board') ? $this->modSetting('recycle_board') : 0;
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
@@ -237,7 +237,7 @@ class Portal extends Suki\Ohara
 				$row['icon'] = 'recycled';
 
 			// Check that this message icon is there...
-			if (!empty($modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
+			if ($this->modSetting('messageIconChecks_enable') && !isset($icon_sources[$row['icon']]))
 				$icon_sources[$row['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['icon'] . '.png') ? 'images_url' : 'default_images_url';
 
 			censorText($row['subject']);
@@ -251,22 +251,22 @@ class Portal extends Suki\Ohara
 				'time' => timeformat($row['poster_time']),
 				'timestamp' => forum_time(true, $row['poster_time']),
 				'body' => $row['body'],
-				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['num_replies'] . ' ' . ($row['num_replies'] == 1 ? $txt['ssi_comment'] : $txt['ssi_comments']) . '</a>',
+				'href' => $this->scriptUrl . '?topic=' . $row['id_topic'] . '.0',
+				'link' => '<a href="' . $this->scriptUrl . '?topic=' . $row['id_topic'] . '.0">' . $row['num_replies'] . ' ' . ($row['num_replies'] == 1 ? $txt['ssi_comment'] : $txt['ssi_comments']) . '</a>',
 				'replies' => $row['num_replies'],
-				'comment_href' => !empty($row['locked']) ? '' : $scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'],
-				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . $scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . $txt['ssi_write_comment'] . '</a>',
-				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . $scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . $txt['ssi_write_comment'] . '</a>',
+				'comment_href' => !empty($row['locked']) ? '' : $this->scriptUrl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'],
+				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . $this->scriptUrl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . $txt['ssi_write_comment'] . '</a>',
+				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . $this->scriptUrl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . $txt['ssi_write_comment'] . '</a>',
 				'poster' => array(
 					'id' => $row['id_member'],
 					'name' => $row['poster_name'],
-					'href' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
-					'link' => !empty($row['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name']
+					'href' => !empty($row['id_member']) ? $this->scriptUrl . '?action=profile;u=' . $row['id_member'] : '',
+					'link' => !empty($row['id_member']) ? '<a href="' . $this->scriptUrl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name']
 				),
 				'locked' => !empty($row['locked']),
 				'is_last' => false,
 				// Nasty ternary for likes not messing around the "is_last" check.
-				'likes' => !empty($modSettings['enable_likes']) ? array(
+				'likes' => $this->modSetting('enable_likes') ? array(
 					'count' => $row['likes'],
 					'you' => in_array($row['id_msg'], prepareLikesContext((int) $row['id_topic'])),
 					'can_like' => !$context['user']['is_guest'] && $row['id_member'] != $context['user']['id'] && !empty($context['can_like']),
