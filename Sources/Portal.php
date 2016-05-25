@@ -18,6 +18,7 @@ require_once ($sourcedir .'/ohara/src/Suki/Ohara.php');
 class Portal extends Suki\Ohara
 {
 	public $name = __CLASS__;
+	protected $_useConfig = true;
 
 	public function __construct()
 	{
@@ -92,6 +93,13 @@ class Portal extends Suki\Ohara
 
 		// Redirect the boardIndex to action "forum".
 		$actions['forum'] = array('BoardIndex.php', 'BoardIndex');
+	}
+
+	public function addTheme()
+	{
+		// Force the default theme on admin action.
+		if ($this->data('action') && ($this->data('action') == 'admin' || $this->data('action') == 'moderate'))
+			$_REQUEST['theme'] = 1;
 	}
 
 	public function addMenu(&$buttons)
