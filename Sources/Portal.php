@@ -27,11 +27,12 @@ class Portal extends Suki\Ohara
 
 	public function addInit()
 	{
-		global $context, $txt;
+		global $context, $txt, $scripturl;
 
 		// Define some context vars.
 		$context[$this->name] = array(
 			'news' => array(),
+			'github' => false,
 		);
 
 		loadTemplate($this->name);
@@ -40,7 +41,7 @@ class Portal extends Suki\Ohara
 		$context[$this->name] = array_merge($context[$this->name], $this->getNews());
 
 		// Set a canonical URL for this page.
-		$context['canonical_url'] = $this->scriptUrl . (!empty($this->_start) && $this->_start > 1 ? '?news;start='. $this->_start : '');
+		$context['canonical_url'] = $scripturl . (!empty($this->_start) && $this->_start > 1 ? '?news;start='. $this->_start : '');
 		$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']) . (!empty($this->_start) && $this->_start > 1 ? ' - Page '. $this->_start : '');
 
 		// Get github data.
@@ -63,7 +64,7 @@ class Portal extends Suki\Ohara
 
 		// Clean everything up!
 		$context['template_layers'] = array();
-		$context['sub_template'] = 'portal_main';
+		$context['sub_template'] = 'body_above';
 
 		// Load what we need when we need it.
 		$context['template_layers'] = array(
@@ -104,7 +105,7 @@ class Portal extends Suki\Ohara
 
 	public function addMenu(&$buttons)
 	{
-		global $txt, $context;
+		global $txt, $context, $scripturl;
 
 		// Mod is disabled.
 		if(!$this->setting('enable'))
@@ -112,7 +113,7 @@ class Portal extends Suki\Ohara
 
 		$buttons['home']['sub_buttons']['forum'] = array(
 			'title' => $this->text('forum_label'),
-			'href' => $this->scriptUrl . '?action=forum',
+			'href' => $scripturl . '?action=forum',
 			'show' => true,
 			'action_hook' => true,
 		);
@@ -123,7 +124,7 @@ class Portal extends Suki\Ohara
 		// And add it as a sub button of home.
 		$buttons['home']['sub_buttons']['search'] = array(
 			'title' => $txt['search'],
-			'href' => $this->scriptUrl . '?action=search',
+			'href' => $scripturl . '?action=search',
 			'show' => $context['allow_search'],
 			'sub_buttons' => array(
 			),
@@ -133,17 +134,17 @@ class Portal extends Suki\Ohara
 		unset($buttons['mlist']);
 		$buttons['home']['sub_buttons']['mlist'] = array(
 			'title' => $txt['members_title'],
-			'href' => $this->scriptUrl . '?action=mlist',
+			'href' => $scripturl . '?action=mlist',
 			'show' => $context['allow_memberlist'],
 			'sub_buttons' => array(
 				'mlist_view' => array(
 					'title' => $txt['mlist_menu_view'],
-					'href' => $this->scriptUrl . '?action=mlist',
+					'href' => $scripturl . '?action=mlist',
 					'show' => true,
 				),
 				'mlist_search' => array(
 					'title' => $txt['mlist_search'],
-					'href' => $this->scriptUrl . '?action=mlist;sa=search',
+					'href' => $scripturl . '?action=mlist;sa=search',
 					'show' => true,
 					'is_last' => true,
 				),
@@ -153,17 +154,17 @@ class Portal extends Suki\Ohara
 
 	public function addMenuActions(&$dummy)
 	{
-		global $context;
+		// Dunno why I added this!
 	}
 
 	public function addLinkTree()
 	{
-		global $context;
+		global $context, $scripturl;
 
 		// Only add this if we're on the forum action
 		if ($this->setting('enable') && $this->data('action') == 'forum')
 			$context['linktree'][] = array(
-				'url' => $this->scriptUrl . '?action=forum',
+				'url' => $scripturl . '?action=forum',
 				'name' => $this->text('forum_label')
 			);
 	}
@@ -171,7 +172,7 @@ class Portal extends Suki\Ohara
 	public function getNews()
 	{
 		global $txt, $settings, $context;
-		global $smcFunc;
+		global $smcFunc, $scripturl;
 
 		loadLanguage('Stats');
 
@@ -194,7 +195,7 @@ class Portal extends Suki\Ohara
 
 		$return = array(
 			'news' => array(),
-			'pagination' => constructPageIndex($this->scriptUrl . '?news', $this->_start, $this->_maxLimit, $this->_limit)
+			'pagination' => constructPageIndex($scripturl . '?news', $this->_start, $this->_maxLimit, $this->_limit)
 		);
 
 		// Find the post ids.
@@ -224,10 +225,12 @@ class Portal extends Suki\Ohara
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				m.icon, m.subject, m.body, IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.likes,
-				t.num_replies, t.id_topic, m.id_member, m.smileys_enabled, m.id_msg, t.locked, t.id_last_msg, m.id_board
+				t.num_replies, t.id_topic, m.id_member, m.smileys_enabled, m.id_msg, t.locked, t.id_last_msg, m.id_board,
+				mem.email_address, mem.avatar, COALESCE(am.id_attach, 0) AS member_id_attach, am.filename AS member_filename, am.attachment_type AS member_attach_type
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
+				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)
 			WHERE t.id_first_msg IN ({array_int:post_list})
 			ORDER BY t.id_first_msg DESC
 			LIMIT ' . count($posts),
@@ -259,17 +262,22 @@ class Portal extends Suki\Ohara
 				'time' => timeformat($row['poster_time']),
 				'timestamp' => forum_time(true, $row['poster_time']),
 				'body' => $row['body'],
-				'href' => $this->scriptUrl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => '<a href="' . $this->scriptUrl . '?topic=' . $row['id_topic'] . '.0">' . $row['num_replies'] . ' ' . ($row['num_replies'] == 1 ? $txt['ssi_comment'] : $txt['ssi_comments']) . '</a>',
+				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
+				'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>',
 				'replies' => $row['num_replies'],
-				'comment_href' => !empty($row['locked']) ? '' : $this->scriptUrl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'],
-				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . $this->scriptUrl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . $txt['ssi_write_comment'] . '</a>',
-				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . $this->scriptUrl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . $txt['ssi_write_comment'] . '</a>',
+				'comment_href' => !empty($row['locked']) ? '' : $scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'],
+				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . $scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . $txt['ssi_write_comment'] . '</a>',
+				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . $scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . $txt['ssi_write_comment'] . '</a>',
 				'poster' => array(
 					'id' => $row['id_member'],
 					'name' => $row['poster_name'],
-					'href' => !empty($row['id_member']) ? $this->scriptUrl . '?action=profile;u=' . $row['id_member'] : '',
-					'link' => !empty($row['id_member']) ? '<a href="' . $this->scriptUrl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name']
+					'href' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
+					'link' => !empty($row['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name'],
+					'avatar' => set_avatar_data(array(
+						'avatar' => $row['avatar'],
+						'email' => $row['email_address'],
+						'filename' => !empty($row['member_filename']) ? $row_board['member_filename'] : '',
+					)),
 				),
 				'locked' => !empty($row['locked']),
 				'is_last' => false,
@@ -293,10 +301,10 @@ class Portal extends Suki\Ohara
 
 	public function github()
 	{
-		global $boarddir;
+		global $cachedir;
 
 		$this->_github = new Github\Client(
-			new Github\HttpClient\CachedHttpClient(array('cache_dir' => $boarddir .'/cache/github-api-cache'))
+			new Github\HttpClient\CachedHttpClient(array('cache_dir' => $cachedir))
 		);
 	}
 
