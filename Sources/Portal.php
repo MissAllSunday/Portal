@@ -33,6 +33,7 @@ class Portal extends Suki\Ohara
 		$context[$this->name] = array(
 			'news' => array(),
 			'github' => false,
+			'recent' => $this->getRecent(),
 		);
 
 		loadTemplate($this->name);
@@ -54,6 +55,12 @@ class Portal extends Suki\Ohara
 			{
 				$this->_github->authenticate($this->setting('githubClient'), $this->setting('githubPass'), Github\Client::AUTH_URL_CLIENT_ID);
 				$context[$this->name]['github']['user'] = $this->_github->api('user')->show($this->setting('githubUser'));
+
+				$context[$this->name]['github']['repos'] = $this->_github->api('user')->repositories($this->setting('githubUser'));
+
+				// Pick 5 random repos.
+				shuffle($context[$this->name]['github']['repos']);
+				$context[$this->name]['github']['repos'] = array_slice($context[$this->name]['github']['repos'], 0, 5);
 			}
 
 			catch (RuntimeException $e)
@@ -169,6 +176,141 @@ class Portal extends Suki\Ohara
 			);
 	}
 
+	public function getRecent($num_recent = 5, $exclude_boards = null, $include_boards = null)
+	{
+		global $settings, $scripturl, $txt, $user_info;
+		global $modSettings, $smcFunc, $context;
+
+		if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
+			$exclude_boards = array($modSettings['recycle_board']);
+		else
+			$exclude_boards = empty($exclude_boards) ? array() : (is_array($exclude_boards) ? $exclude_boards : array($exclude_boards));
+
+		// Only some boards?.
+		if (is_array($include_boards) || (int) $include_boards === $include_boards)
+			$include_boards = is_array($include_boards) ? $include_boards : array($include_boards);
+
+		elseif ($include_boards != null)
+		{
+			$output_method = $include_boards;
+			$include_boards = array();
+		}
+
+		$icon_sources = array();
+		foreach ($context['stable_icons'] as $icon)
+			$icon_sources[$icon] = 'images_url';
+
+		// Find all the posts in distinct topics.  Newer ones will have higher IDs.
+		$request = $smcFunc['db_query']('substring', '
+			SELECT
+				t.id_topic, b.id_board, b.name AS board_name
+			FROM {db_prefix}topics AS t
+				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
+				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
+			WHERE t.id_last_msg >= {int:min_message_id}' . (empty($exclude_boards) ? '' : '
+				AND b.id_board NOT IN ({array_int:exclude_boards})') . '' . (empty($include_boards) ? '' : '
+				AND b.id_board IN ({array_int:include_boards})') . '
+				AND {query_wanna_see_board}' . ($modSettings['postmod_active'] ? '
+				AND t.approved = {int:is_approved}
+				AND ml.approved = {int:is_approved}' : '') . '
+			ORDER BY t.id_last_msg DESC
+			LIMIT ' . $num_recent,
+			array(
+				'include_boards' => empty($include_boards) ? '' : $include_boards,
+				'exclude_boards' => empty($exclude_boards) ? '' : $exclude_boards,
+				'min_message_id' => $modSettings['maxMsgID'] - (!empty($context['min_message_topics']) ? $context['min_message_topics'] : 35) * min($num_recent, 5),
+				'is_approved' => 1,
+			)
+		);
+		$topics = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$topics[$row['id_topic']] = $row;
+		$smcFunc['db_free_result']($request);
+
+		// Did we find anything? If not, bail.
+		if (empty($topics))
+			return array();
+
+		$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
+
+		// Find all the posts in distinct topics.  Newer ones will have higher IDs.
+		$request = $smcFunc['db_query']('substring', '
+			SELECT
+				mf.poster_time, mf.subject, ml.id_topic, mf.id_member, ml.id_msg, t.num_replies, t.num_views, mg.online_color,
+				mem.email_address, mem.avatar, COALESCE(am.id_attach, 0) AS member_id_attach, am.filename AS member_filename, am.attachment_type AS member_attach_type,
+				IFNULL(mem.real_name, mf.poster_name) AS poster_name, ' . ($user_info['is_guest'] ? '1 AS is_read, 0 AS new_from' : '
+				IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) >= ml.id_msg_modified AS is_read,
+				IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1 AS new_from') . ', mf.icon
+			FROM {db_prefix}topics AS t
+				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
+				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_last_msg)
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mf.id_member)
+				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = mf.id_member)' . (!$user_info['is_guest'] ? '
+				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
+				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' : '') . '
+				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)
+			WHERE t.id_topic IN ({array_int:topic_list})',
+			array(
+				'current_member' => $user_info['id'],
+				'topic_list' => array_keys($topics),
+			)
+		);
+		$posts = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			// Censor the subject.
+			censorText($row['subject']);
+			censorText($row['body']);
+
+			// Recycled icon
+			if (!empty($recycle_board) && $topics[$row['id_topic']]['id_board'])
+				$row['icon'] = 'recycled';
+
+			if (!empty($modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
+				$icon_sources[$row['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['icon'] . '.png') ? 'images_url' : 'default_images_url';
+
+			// Build the array.
+			$posts[] = array(
+				'board' => array(
+					'id' => $topics[$row['id_topic']]['id_board'],
+					'name' => $topics[$row['id_topic']]['board_name'],
+					'href' => $scripturl . '?board=' . $topics[$row['id_topic']]['id_board'] . '.0',
+					'link' => '<a href="' . $scripturl . '?board=' . $topics[$row['id_topic']]['id_board'] . '.0">' . $topics[$row['id_topic']]['board_name'] . '</a>',
+				),
+				'topic' => $row['id_topic'],
+				'poster' => array(
+					'id' => $row['id_member'],
+					'name' => $row['poster_name'],
+					'href' => empty($row['id_member']) ? '' : $scripturl . '?action=profile;u=' . $row['id_member'],
+					'link' => empty($row['id_member']) ? $row['poster_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>',
+					'avatar' => set_avatar_data(array(
+						'avatar' => $row['avatar'],
+						'email' => $row['email_address'],
+						'filename' => !empty($row['member_filename']) ? $row['member_filename'] : '',
+					)),
+				),
+				'subject' => $row['subject'],
+				'replies' => $row['num_replies'],
+				'views' => $row['num_views'],
+				'short_subject' => shorten_subject($row['subject'], 25),
+				'time' => timeformat($row['poster_time']),
+				'timestamp' => forum_time(true, $row['poster_time']),
+				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#new',
+				'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#new" rel="nofollow">' . $row['subject'] . '</a>',
+				// Retained for compatibility - is technically incorrect!
+				'new' => !empty($row['is_read']),
+				'is_new' => empty($row['is_read']),
+				'new_from' => $row['new_from'],
+				'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" style="vertical-align:middle;" alt="' . $row['icon'] . '">',
+			);
+		}
+
+		$smcFunc['db_free_result']($request);
+
+
+		return $posts;
+	}
+
 	public function getNews()
 	{
 		global $txt, $settings, $context;
@@ -276,7 +418,7 @@ class Portal extends Suki\Ohara
 					'avatar' => set_avatar_data(array(
 						'avatar' => $row['avatar'],
 						'email' => $row['email_address'],
-						'filename' => !empty($row['member_filename']) ? $row_board['member_filename'] : '',
+						'filename' => !empty($row['member_filename']) ? $row['member_filename'] : '',
 					)),
 				),
 				'locked' => !empty($row['locked']),
