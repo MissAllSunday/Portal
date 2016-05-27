@@ -1,1 +1,1 @@
-{"_availableHooks":{"init":"integrate_default_action","actions":"integrate_actions","settings":"integrate_general_mod_settings","linktree":"integrate_mark_read_button","menu":"integrate_menu_buttons","menuActions":"integrate_current_action","theme":"integrate_user_info"}}
+{"_availableHooks":{"init":"integrate_default_action","actions":"integrate_actions","settings":"integrate_general_mod_settings","linktree":"integrate_mark_read_button","menu":"integrate_menu_buttons","menuActions":"integrate_current_action","forceTheme":"integrate_user_info"}}
