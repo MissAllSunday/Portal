@@ -29,7 +29,7 @@ class Portal extends Suki\Ohara
 	{
 		global $context;
 
-		$context[$this->name] = array(
+		$context['sidebar'] = array(
 			'github' => false,
 			'recent' => $this->getRecent(),
 		);
@@ -43,13 +43,13 @@ class Portal extends Suki\Ohara
 			try
 			{
 				$this->_github->authenticate($this->setting('githubClient'), $this->setting('githubPass'), Github\Client::AUTH_URL_CLIENT_ID);
-				$context[$this->name]['github']['user'] = $this->_github->api('user')->show($this->setting('githubUser'));
+				$context['sidebar']['github']['user'] = $this->_github->api('user')->show($this->setting('githubUser'));
 
-				$context[$this->name]['github']['repos'] = $this->_github->api('user')->repositories($this->setting('githubUser'));
+				$context['sidebar']['github']['repos'] = $this->_github->api('user')->repositories($this->setting('githubUser'));
 
 				// Pick 5 random repos.
-				shuffle($context[$this->name]['github']['repos']);
-				$context[$this->name]['github']['repos'] = array_slice($context[$this->name]['github']['repos'], 0, 5);
+				shuffle($context['sidebar']['github']['repos']);
+				$context['sidebar']['github']['repos'] = array_slice($context['sidebar']['github']['repos'], 0, 5);
 			}
 
 			catch (RuntimeException $e)
@@ -64,22 +64,22 @@ class Portal extends Suki\Ohara
 		global $context, $txt, $scripturl;
 
 		// Define some context vars.
-		$context[$this->name] = array(
-			'news' => array(),
-		);
+		$context[$this->name] = array();
 
 		// Get the news.
-		$context[$this->name] = array_merge($context[$this->name], $this->getNews());
+		$context[$this->name] = $this->getNews();
 
 		// Set a canonical URL for this page.
 		$context['canonical_url'] = $scripturl . (!empty($this->_start) && $this->_start > 1 ? '?news;start='. $this->_start : '');
 		$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']) . (!empty($this->_start) && $this->_start > 1 ? ' - Page '. $this->_start : '');
 
 		loadTemplate($this->name);
+		loadTemplate('Sidebar');
+		loadTemplate('Ads');
 
 		// Clean everything up!
 		$context['template_layers'] = array();
-		$context['sub_template'] = 'sidebar_main';
+		$context['sub_template'] = 'portal_main';
 
 		// Load what we need when we need it.
 		$context['template_layers'] = array(
@@ -124,7 +124,7 @@ class Portal extends Suki\Ohara
 	public function addMenu(&$buttons)
 	{
 		global $txt, $context, $scripturl;
-$this->sideBar();
+
 		// Mod is disabled.
 		if(!$this->setting('enable'))
 			return;
@@ -168,6 +168,9 @@ $this->sideBar();
 				),
 			),
 		);
+
+		// Sidebar!!!!
+		$this->sideBar();
 	}
 
 	public function addMenuActions(&$dummy)
@@ -192,8 +195,13 @@ $this->sideBar();
 		global $settings, $scripturl, $txt, $user_info;
 		global $modSettings, $smcFunc, $context;
 
+		// Somebody has been sitting in my chair and nas broken it!
+		if (($posts = cache_get_data($this->name .'-recent', 360)) != null)
+			return $posts;
+
 		if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
 			$exclude_boards = array($modSettings['recycle_board']);
+
 		else
 			$exclude_boards = empty($exclude_boards) ? array() : (is_array($exclude_boards) ? $exclude_boards : array($exclude_boards));
 
@@ -318,6 +326,8 @@ $this->sideBar();
 
 		$smcFunc['db_free_result']($request);
 
+		// Be nice, rewind!
+		cache_put_data($this->name .'-recent', $posts, 360);
 
 		return $posts;
 	}
@@ -326,6 +336,10 @@ $this->sideBar();
 	{
 		global $txt, $settings, $context;
 		global $smcFunc, $scripturl;
+
+		// Someone else found Rome a city of bricks and left it a city of marble.
+		if (($return = cache_get_data($this->name .'-news', 360)) != null)
+			return $return;
 
 		loadLanguage('Stats');
 
@@ -448,6 +462,9 @@ $this->sideBar();
 			return $return;
 
 		$return['news'][count($return) - 1]['is_last'] = true;
+
+		// Because file system is ALWAYS faster right?
+		cache_put_data($this->name .'-news', $return, 360);
 
 		return $return;
 	}

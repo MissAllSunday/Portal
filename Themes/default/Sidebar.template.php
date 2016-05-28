@@ -132,7 +132,7 @@ echo '
 				<div class="row">
 					<ul class="collapsible portal_recent" data-collapsible="accordion">';
 
-	if (!empty($context['Portal']['recent']))
+	if (!empty($context['sidebar']['recent']))
 	{
 		echo '
 						<li>
@@ -141,7 +141,7 @@ echo '
 							<div class="row recent">
 							<p></p>';
 
-		foreach ($context['Portal']['recent'] as $r)
+		foreach ($context['sidebar']['recent'] as $r)
 			echo '
 								<div class="col s12 truncate">', $r['link'] ,'
 								</div>
@@ -163,7 +163,7 @@ echo '
 						</li>';
 	}
 
-	if (!empty($context['Portal']['github']['repos']))
+	if (!empty($context['sidebar']['github']['repos']))
 	{
 		echo '
 						<li>
@@ -171,7 +171,7 @@ echo '
 						<div class="collapsible-body">
 							<div class="row repos">';
 
-		foreach ($context['Portal']['github']['repos'] as $r)
+		foreach ($context['sidebar']['github']['repos'] as $r)
 			echo '
 								<div class="col s12 truncate">
 									<h5 class="catbg"><a href="', $r['html_url'] ,'">', $r['name'] ,'</a></h5>
