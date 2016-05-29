@@ -129,11 +129,34 @@ class Portal extends Suki\Ohara
 		if(!$this->setting('enable'))
 			return;
 
-		$buttons['home']['sub_buttons']['forum'] = array(
+		if (!empty($context['linktree']))
+		{
+			if (!empty($_GET))
+				array_splice($context['linktree'], 1, 0, array(array(
+					'url' => $scripturl . '?action=forum',
+					'name' => $this->text('forum_label')
+				)));
+
+			if (!empty($context['linktree'][2]))
+				$context['linktree'][2]['url'] = str_replace('#', '?action=forum#', $context['linktree'][2]['url']);
+		}
+
+		$counter = 0;
+		foreach ($buttons as $area => $dummy)
+			if (++$counter && $area == 'home')
+				break;
+
+		// Add a nice Forum button.
+		$buttons = array_merge(
+			array_slice($buttons, 0, $counter),
+			array('forum' => array(
 			'title' => $this->text('forum_label'),
 			'href' => $scripturl . '?action=forum',
 			'show' => true,
 			'action_hook' => true,
+		),
+			),
+			array_slice($buttons, $counter)
 		);
 
 		// Unset the main search button.
@@ -175,19 +198,12 @@ class Portal extends Suki\Ohara
 
 	public function addMenuActions(&$dummy)
 	{
-		// Dunno why I added this!
+
 	}
 
 	public function addLinkTree()
 	{
-		global $context, $scripturl;
 
-		// Only add this if we're on the forum action
-		if ($this->setting('enable') && $this->data('action') == 'forum')
-			$context['linktree'][] = array(
-				'url' => $scripturl . '?action=forum',
-				'name' => $this->text('forum_label')
-			);
 	}
 
 	public function getRecent($num_recent = 5, $exclude_boards = null, $include_boards = null)
