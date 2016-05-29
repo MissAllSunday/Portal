@@ -192,7 +192,7 @@ class Portal extends Suki\Ohara
 			),
 		);
 
-		// Sidebar!!!!
+		// Sidebar!!!! because reasons!
 		$this->sideBar();
 	}
 
@@ -211,7 +211,7 @@ class Portal extends Suki\Ohara
 		global $settings, $scripturl, $txt, $user_info;
 		global $modSettings, $smcFunc, $context;
 
-		// Somebody has been sitting in my chair and nas broken it!
+		// Someone else found Rome a city of bricks and left it a city of marble.
 		if (($posts = cache_get_data($this->name .'-recent', 360)) != null)
 			return $posts;
 
@@ -353,17 +353,17 @@ class Portal extends Suki\Ohara
 		global $txt, $settings, $context;
 		global $smcFunc, $scripturl;
 
-		// Someone else found Rome a city of bricks and left it a city of marble.
-		if (($return = cache_get_data($this->name .'-news', 360)) != null)
-			return $return;
-
-		loadLanguage('Stats');
-
 		// Get some settings.
 		$this->_limit = $this->enable('limit') ? (int) $this->setting('limit') : 5;
 		$this->_maxLimit = $this->enable('maxLimit') ? (int) $this->setting('maxLimit') : 50;
 		$this->_boards = $this->enable('boards') ? explode(',', $this->setting('boards')) : array();
 		$this->_start = $this->validate('start') ? (int) $this->data('start') : 0;
+
+		// Chances are you are only going to see the first page so...
+		if (($return = cache_get_data($this->name .'-news', 360)) != null && $this->_start == 0)
+			return $return;
+
+		loadLanguage('Stats');
 
 		// Load the message icons - the usual suspects.
 		$icon_sources = array();
@@ -480,7 +480,8 @@ class Portal extends Suki\Ohara
 		$return['news'][count($return) - 1]['is_last'] = true;
 
 		// Because file system is ALWAYS faster right?
-		cache_put_data($this->name .'-news', $return, 360);
+		if ($this->_start == 0)
+			cache_put_data($this->name .'-news', $return, 360);
 
 		return $return;
 	}
