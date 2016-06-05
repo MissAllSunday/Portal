@@ -17,4 +17,6 @@ $txt['Portal_githubPass'] = 'github pass';
 $txt['Portal_githubPass_sub'] = '';
 $txt['Portal_githubUser'] = 'github user';
 $txt['Portal_githubUser_sub'] = '';
+$txt['Portal_rss_cut'] = 'The string to take as reference';
+$txt['Portal_rss_cut_sub'] = '';
 $txt['Portal_forum_label'] = 'Forum';
