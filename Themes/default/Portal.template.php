@@ -19,25 +19,29 @@ function template_portal_below()
 	foreach ($context['Portal']['news'] as $n)
 	{
 		echo '
-				<div class="row blog_post">
-					<h4 class="catbg row">', $n['link'] ,'</h4>
+				<div itemscope="" itemtype="http://schema.org/BlogPosting" class="row blog_post">
+					<h4 class="catbg row"><span itemprop="name headline">', $n['link'] ,'</span></h4>
 					<div class="row ">
 						<div class="flow-text col s12">
-							', $n['body'] ,'
+							<span itemprop="articleBody">', $n['body'] ,'</span>
 							<p>
 							<div class="divider"></div>
 						</div>
 						<div class="row"></div>
 						<div class="row">
 							<div class="col s6 m10 info right-align">
-								', $n['time'] ,'<i class="tiny material-icons valign">query_builder</i><br>
-								', $n['comment_link'] ,'<i class="tiny material-icons ">chat_bubble_outline</i><br>';
+								<span itemprop="datePublished dateModified" content="', date('c', $n['timestamp']) ,'">', $n['time'] ,'</span><i class="tiny material-icons valign">query_builder</i><br>
+								', $n['comment_link'] ,'<i class="tiny material-icons ">chat_bubble_outline</i><br>
+								<span itemprop="author" itemscope itemtype="https://schema.org/Person">
+								<span itemprop="name"><a itemprop="url" rel="author" href=""', $n['poster']['href'] ,'">', $n['poster']['name'] ,'</a></span></span><i class="tiny material-icons ">face</i>';
 
 		echo '
 							</div>
-							<div class="col s6 m2">
-								<a href="', $n['poster']['href'] ,'">
-									<img src="', $n['poster']['avatar']['href'] ,'" class="avatar">
+							<div class="col s6 m2" property="image" typeof="ImageObject">
+								<link property="url" href="', $n['poster']['avatar']['href'] ,'" />
+								<meta property="height" content="50" />
+								<meta property="width" content="50" />
+									<img property="image" src="', $n['poster']['avatar']['href'] ,'" class="avatar">
 								</a>
 							</div>
 						</div>

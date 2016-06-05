@@ -13,8 +13,13 @@ function template_ads_main(){}
 
 function template_ads_above()
 {
+	global $context;
+
+	if ($context['user']['is_logged'] || isset($_REQUEST['xml']))
+		return;
+
 	echo '
-	<div class="roundframe" id="info_center" style="margin:auto; text-align:center;">
+	<div class="roundframe row">
 	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <!-- responsive -->
 <ins class="adsbygoogle"
@@ -30,8 +35,13 @@ function template_ads_above()
 
 function template_ads_below()
 {
+	global $context;
+
+	if ($context['user']['is_logged'] || isset($_REQUEST['xml']))
+		return;
+
 	echo '
-	<div class="roundframe" id="info_center" style="margin:auto; text-align:center;">
+	<div class="roundframe row">
 	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <!-- responsive -->
 <ins class="adsbygoogle"

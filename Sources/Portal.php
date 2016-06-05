@@ -57,6 +57,16 @@ class Portal extends Suki\Ohara
 				log_error('issues with github API: '. $e->getMessage());
 			}
 		}
+
+		if (!$context['user']['is_admin'] && !isset($_REQUEST['xml']))
+					addInlineJavascript('
+		(function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,"script","//www.google-analytics.com/analytics.js","ga");
+
+		ga("create", "UA-27276940-1", "auto");
+		ga("send", "pageview");', true);
 	}
 
 	public function addInit()
@@ -71,7 +81,7 @@ class Portal extends Suki\Ohara
 
 		// Set a canonical URL for this page.
 		$context['canonical_url'] = $scripturl . (!empty($this->_start) && $this->_start > 1 ? '?news;start='. $this->_start : '');
-		$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']) . (!empty($this->_start) && $this->_start > 1 ? ' - Page '. $this->_start : '');
+		$context['page_title'] = $context['page_title_html_safe'] = sprintf($txt['forum_index'], $context['forum_name']);
 
 		loadTemplate($this->name);
 		loadTemplate('Sidebar');
@@ -203,7 +213,12 @@ class Portal extends Suki\Ohara
 
 	public function addLinkTree()
 	{
+		global $context, $scripturl;
 
+		// Set a canonical URL for this page.
+		$context['canonical_url'] = $scripturl .'?action=forum';
+
+		$context['page_title'] = $context['page_title_html_safe'] = $context['forum_name'] .' - '. $this->text('forum_label');
 	}
 
 	public function getRecent($num_recent = 5, $exclude_boards = null, $include_boards = null)
