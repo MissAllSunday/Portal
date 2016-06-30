@@ -31,7 +31,7 @@ class Portal extends Suki\Ohara
 
 		$context['sidebar'] = array(
 			'github' => false,
-			'recent' => $this->getRecent(),
+			'recent' => $this->getRecent(5, 19),
 		);
 
 		// Get github data.

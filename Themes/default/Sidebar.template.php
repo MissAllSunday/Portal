@@ -143,16 +143,17 @@ echo '
 
 		foreach ($context['sidebar']['recent'] as $r)
 			echo '
-								<div class="col s12 truncate">', $r['link'] ,'
+								<div class="col s12 small">
+									<i class="tiny material-icons b_icon_time">query_builder</i> ', date('M j, Y', $r['timestamp']) ,'
 								</div>
 								<div class="col s12 row">
 									<div class="col s3 small">
 										<a href="', $r['poster']['href'] ,'">
-											<img src="', $r['poster']['avatar']['href'] ,'" class="circle">
+											<img src="', $r['poster']['avatar']['href'] ,'" class="circle avatar">
 										</a>
 									</div>
-									<div class="col s9 small">
-										<i class="tiny material-icons">query_builder</i> ', date('M j, Y', $r['timestamp']) ,'
+									<div class="col s9 truncate">
+										', $r['link'] ,'
 										', ($r['is_new']) ? '<span class="new badge"></span>' : '' ,'
 									</div>
 									<div class="col s12 divider"></div>
