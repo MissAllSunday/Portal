@@ -210,44 +210,16 @@ class Portal extends Suki\Ohara
 	public function addCodeBbc(&$codes)
 	{
 		global $txt, $context;
-		static $done = false;
 
 		// Gotta find that pesky code tag!
 		foreach ($codes as $k => $c)
 		{
 			if ($c['tag'] == 'code' && ($c['type'] == 'unparsed_content' || $c['type'] == 'unparsed_equals_content'))
 			{
-				$codes[$k]['validate'] = function (&$tag, &$data, $disabled) use ($context, &$done)
+				$codes[$k]['validate'] = function (&$tag, &$data, $disabled) use ($context)
 					{
 						if (!empty($disabled['code']))
 							return;
-
-						if (!$done)
-						{
-							loadCSSFile('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/obsidian.min.css', array('external' => true, 'minimize' => false), 'highlight_css');
-							loadJavascriptFile('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/highlight.min.js', array('external' => true, 'defer' => true), 'highlight_js');
-							addInlineJavascript('
-	var cssId = "highlight_css";
-	if (!document.getElementById(cssId))
-	{
-		var head  = document.getElementsByTagName("head")[0];
-		var link  = document.createElement("link");
-		link.id   = cssId;
-		link.rel  = "stylesheet";
-		link.type = "text/css";
-		link.href = "//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/obsidian.min.css";
-		link.media = "all";
-		head.appendChild(link);
-	}
-	$(function() {
-
-		$("code.bbc_code").each(function(i, block) {
-			hljs.highlightBlock(block);
-		});
-	});', true);
-
-							$done = true;
-						}
 					};
 
 				break;
