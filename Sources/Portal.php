@@ -215,15 +215,97 @@ class Portal extends Suki\Ohara
 		foreach ($codes as $k => $c)
 		{
 			if ($c['tag'] == 'code' && ($c['type'] == 'unparsed_content' || $c['type'] == 'unparsed_equals_content'))
-			{
 				$codes[$k]['validate'] = function (&$tag, &$data, $disabled) use ($context)
 					{
 						if (!empty($disabled['code']))
 							return;
 					};
 
-				break;
-			}
+			// Lets make google happy!
+			if ($c['tag'] == 'attach')
+				$codes[$k]['validate'] = function (&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt)
+				{
+					static $structuredData = false;
+
+					$returnContext = '';
+
+					// BBC or the entire attachments feature is disabled
+					if (empty($modSettings['attachmentEnable']) || !empty($disabled['attach']))
+						return $data;
+
+					// Save the attach ID.
+					$attachID = $data;
+
+					// Kinda need this.
+					require_once($sourcedir . '/Subs-Attachments.php');
+
+					$currentAttachment = parseAttachBBC($attachID);
+
+					// parseAttachBBC will return a string ($txt key) rather than diying with a fatal_error. Up to you to decide what to do.
+					if (is_string($currentAttachment))
+						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
+
+					if (!empty($currentAttachment['is_image']))
+					{
+						$alt = !empty($params['{alt}']) ? ' alt="' . $params['{alt}'] . '"' : ' alt="' . $currentAttachment['name'] . '"';
+						$title = !empty($params['{title}']) ? ' title="' . $params['{alt}'] . '"' : '';
+
+						if (!empty($params['{width}']) && !empty($params['{height}']))
+						{
+							$width = ' width="' . $params['{width}'] . '"';
+							$height = ' height="' . $params['{height}'] . '"';
+						}
+						elseif (!empty($params['{width}']) && empty($params['{height}']))
+						{
+							$width = ' width="' . $params['{width}'] . '"';
+							$height = '';
+						}
+						elseif (empty($params['{width}']) && !empty($params['{height}']))
+						{
+							$width = '';
+							$height = ' height="' . $params['{height}'] . '"';
+						}
+						else
+						{
+							$width = ' width="' . $currentAttachment['width'] . '"';
+							$height = ' height="' . $currentAttachment['height'] . '"';
+						}
+
+						// structured data. Only the first item gets the goodies.
+						if (!$structuredData)
+						{
+							$returnContext .='
+													<div itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+														<meta itemprop="url" content="'. $currentAttachment['href']. '">
+														<meta itemprop="width" content="'. $width .'">
+														<meta itemprop="height" content="'. $height .'">';
+						}
+
+						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
+							$returnContext .= '
+													<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '" alt="' . $currentAttachment['name'] . '" id="thumb_'. $currentAttachment['id']. '"></a>';
+						else
+							$returnContext .= '
+													<img src="' . $currentAttachment['href'] . ';image" alt="' . $currentAttachment['name'] . '"' . $width . $height . '/>';
+
+						if (!$structuredData)
+						{
+							$returnContext .='
+
+													</div>';
+
+							$structuredData = true;
+						}
+
+					}
+
+					// No image. Show a link.
+					else
+						$returnContext .= $currentAttachment['link'];
+
+					// Gotta append what we just did.
+					$data = $returnContext;
+				};
 		}
 	}
 

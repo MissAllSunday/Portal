@@ -30,10 +30,10 @@ function template_portal_below()
 						<div class="row"></div>
 						<div class="row">
 							<div class="col s6 m10 info right-align">
-								<span itemprop="datePublished dateModified" content="', date('c', $n['timestamp']) ,'">', $n['time'] ,'</span><i class="tiny material-icons valign b_icon_time">query_builder</i><br>
-								', $n['comment_link'] ,'<i class="tiny material-icons b_icon_chat">chat_bubble_outline</i><br>
+								<span itemprop="datePublished dateModified" content="', date('c', $n['timestamp']) ,'">', $n['time'] ,'</span> <i class="tiny material-icons valign b_icon_time">query_builder</i><br>
+								', $n['comment_link'] ,' <i class="tiny material-icons b_icon_chat">chat_bubble_outline</i><br>
 								<span itemprop="author" itemscope itemtype="https://schema.org/Person">
-								<span itemprop="name"><a itemprop="url" rel="author" href="', $n['poster']['href'] ,'">', $n['poster']['name'] ,'</a></span></span><i class="tiny material-icons  b_icon_face">face</i>';
+								<span itemprop="name"><a itemprop="url" rel="author" href="', $n['poster']['href'] ,'">', $n['poster']['name'] ,'</a></span></span> <i class="tiny material-icons  b_icon_face">face</i>';
 
 		echo '
 							</div>
