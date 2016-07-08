@@ -209,7 +209,8 @@ class Portal extends Suki\Ohara
 
 	public function addCodeBbc(&$codes)
 	{
-		global $txt, $context;
+		global $modSettings, $context, $sourcedir, $txt;
+		static $structuredData = false;
 
 		// Gotta find that pesky code tag!
 		foreach ($codes as $k => $c)
@@ -225,7 +226,7 @@ class Portal extends Suki\Ohara
 			if ($c['tag'] == 'attach')
 				$codes[$k]['validate'] = function (&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt)
 				{
-					static $structuredData = false;
+					global $structuredData;
 
 					$returnContext = '';
 
@@ -306,6 +307,18 @@ class Portal extends Suki\Ohara
 					// Gotta append what we just did.
 					$data = $returnContext;
 				};
+
+			if ($c['tag'] == 'img' && !empty($c['parameters']) && !$structuredData)
+			{
+				$codes[$k]['content'] = '<div itemprop="image" itemscope itemtype="https://schema.org/ImageObject"><img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized"><meta itemprop="url" content="$1"><meta itemprop="width" content="{width}"><meta itemprop="height" content="{height}"></div>';
+				$structuredData = true;
+			}
+
+			if ($c['tag'] == 'img' && empty($c['parameters']) && !$structuredData)
+			{
+				$codes[$k]['content'] = '<div itemprop="image" itemscope itemtype="https://schema.org/ImageObject"><img src="$1" alt="" class="bbc_img"><meta itemprop="url" content="$1"></div>';
+				$structuredData = true;
+			}
 		}
 	}
 
