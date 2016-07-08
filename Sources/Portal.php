@@ -31,7 +31,7 @@ class Portal extends Suki\Ohara
 
 		$context['sidebar'] = array(
 			'github' => false,
-			'recent' => $this->getRecent(5, 19),
+			'recent' => $this->getRecent(5, $this->enable('boards_exclude') ? explode(',', $this->setting('boards_exclude')) : null),
 		);
 
 		// Get github data.
@@ -108,6 +108,7 @@ class Portal extends Suki\Ohara
 		$config_vars[] = array('int', $this->name .'_limit', 'subtext' => $this->text('limit_sub'));
 		$config_vars[] = array('int', $this->name .'_maxLimit', 'subtext' => $this->text('maxLimit_sub'));
 		$config_vars[] = array('text', $this->name .'_boards', 'subtext' => $this->text('boards_sub'));
+		$config_vars[] = array('text', $this->name .'_boards_exclude', 'subtext' => $this->text('boards_exclude_sub'));
 		$config_vars[] = array('text', $this->name .'_githubUser', 'subtext' => $this->text('githubUser_sub'));
 		$config_vars[] = array('text', $this->name .'_githubClient', 'subtext' => $this->text('githubClient_sub'));
 		$config_vars[] = array('text', $this->name .'_githubPass', 'subtext' => $this->text('githubPass_sub'));
