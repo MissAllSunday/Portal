@@ -211,7 +211,6 @@ class Portal extends Suki\Ohara
 	public function addCodeBbc(&$codes)
 	{
 		global $modSettings, $context, $sourcedir, $txt;
-		static $structuredData = false;
 
 		// Gotta find that pesky code tag!
 		foreach ($codes as $k => $c)
@@ -227,8 +226,6 @@ class Portal extends Suki\Ohara
 			if ($c['tag'] == 'attach')
 				$codes[$k]['validate'] = function (&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt)
 				{
-					global $structuredData;
-
 					$returnContext = '';
 
 					// BBC or the entire attachments feature is disabled
@@ -273,15 +270,12 @@ class Portal extends Suki\Ohara
 							$height = ' height="' . $currentAttachment['height'] . '"';
 						}
 
-						// structured data. Only the first item gets the goodies.
-						if (!$structuredData)
-						{
-							$returnContext .='
-													<div itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
-														<meta itemprop="url" content="'. $currentAttachment['href']. '">
-														<meta itemprop="width" content="'. $width .'">
-														<meta itemprop="height" content="'. $height .'">';
-						}
+						// structured data.
+						$returnContext .='
+												<div itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+													<meta itemprop="url" content="'. $currentAttachment['href']. '">
+													<meta itemprop="width" content="'. $width .'">
+													<meta itemprop="height" content="'. $height .'">';
 
 						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
 							$returnContext .= '
@@ -290,14 +284,9 @@ class Portal extends Suki\Ohara
 							$returnContext .= '
 													<img src="' . $currentAttachment['href'] . ';image" alt="' . $currentAttachment['name'] . '"' . $width . $height . '/>';
 
-						if (!$structuredData)
-						{
-							$returnContext .='
+						$returnContext .='
 
-													</div>';
-
-							$structuredData = true;
-						}
+												</div>';
 
 					}
 
@@ -309,16 +298,15 @@ class Portal extends Suki\Ohara
 					$data = $returnContext;
 				};
 
-			if ($c['tag'] == 'img' && !empty($c['parameters']) && !$structuredData)
+			if ($c['tag'] == 'img' && !empty($c['parameters']))
 			{
-				$codes[$k]['content'] = '<div itemprop="image" itemscope itemtype="https://schema.org/ImageObject"><img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized"><meta itemprop="url" content="$1"><meta itemprop="width" content="{width}"><meta itemprop="height" content="{height}"></div>';
-				$structuredData = true;
-			}
-
-			if ($c['tag'] == 'img' && empty($c['parameters']) && !$structuredData)
-			{
-				$codes[$k]['content'] = '<div itemprop="image" itemscope itemtype="https://schema.org/ImageObject"><img src="$1" alt="" class="bbc_img"><meta itemprop="url" content="$1"></div>';
-				$structuredData = true;
+				$codes[$k]['parameters'] = array(
+					'alt' => array('optional' => true),
+					'title' => array('optional' => true),
+					'width' => array('optional' => true, 'value' => '$1', 'match' => '(\d+)'),
+					'height' => array('optional' => true, 'value' => '$1', 'match' => '(\d+)'),
+				);
+				$codes[$k]['content'] = '<div itemprop="image" itemscope itemtype="https://schema.org/ImageObject"><img src="$1" alt="{alt}" title="{title}" width="{width}" height="{height}" class="bbc_img resized"><meta itemprop="url" content="$1"><meta itemprop="width" content="{width}"><meta itemprop="height" content="{height}"></div>';
 			}
 		}
 	}

@@ -16,10 +16,16 @@ function template_portal_below()
 {
 	global $context, $txt, $scripturl,$modSettings;
 
+	echo '
+			<div itemscope itemtype="http://schema.org/Blog">
+				<link itemprop="mainEntityOfPage" href="'. $context['canonical_url'] .'" />';
+
+	$i = 0;
 	foreach ($context['Portal']['news'] as $n)
 	{
 		echo '
-				<div itemscope="" itemtype="http://schema.org/BlogPosting" class="row blog_post">
+				<div itemprop="mainEntity" itemscope="" itemtype="http://schema.org/BlogPosting" class="row blog_post">
+					<link itemprop="mainEntityOfPage" href="'. $context['canonical_url'] .'" />
 					<h4 class="catbg row"><span itemprop="name headline">', $n['link'] ,'</span></h4>
 					<div class="row ">
 						<div class="flow-text col s12">
@@ -33,23 +39,24 @@ function template_portal_below()
 								<span itemprop="datePublished dateModified" content="', date('c', $n['timestamp']) ,'">', $n['time'] ,'</span> <i class="tiny material-icons valign b_icon_time">query_builder</i><br>
 								', $n['comment_link'] ,' <i class="tiny material-icons b_icon_chat">chat_bubble_outline</i><br>
 								<span itemprop="author" itemscope itemtype="https://schema.org/Person">
-								<span itemprop="name"><a itemprop="url" rel="author" href="', $n['poster']['href'] ,'">', $n['poster']['name'] ,'</a></span></span> <i class="tiny material-icons  b_icon_face">face</i>';
+								<meta itemprop="image" content="', $n['poster']['avatar']['href'] ,'">
+								<a itemprop="url" rel="author" href="', $n['poster']['href'] ,'"><span itemprop="name">', $n['poster']['name'] ,'</span></a></span> <i class="tiny material-icons  b_icon_face">face</i>';
 
 		echo '
 							</div>
-							<div class="col s6 m2" property="image" typeof="ImageObject">
-								<link property="url" href="', $n['poster']['avatar']['href'] ,'" />
-								<meta property="height" content="50" />
-								<meta property="width" content="50" />
-									<img property="image" src="', $n['poster']['avatar']['href'] ,'" class="avatar">
+							<div class="col s6 m2">
+									<img  src="', $n['poster']['avatar']['href'] ,'" class="avatar">
 								</a>
 							</div>
 						</div>
 					</div>
 				</div>';
+
+		$i++;
 	}
 
 	echo '
+			</div>
 				<div class="row">
 					', $context['Portal']['pagination'] ,'
 				</div>';
