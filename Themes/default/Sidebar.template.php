@@ -202,6 +202,28 @@ echo '
 						</li>';
 	}
 
+	// Google search
+	echo '
+						<li>
+							<div class="collapsible-header"><i class="material-icons">search</i>Search</div>
+							<div class="collapsible-body">
+								<div class="row input-field">
+<script>
+  (function() {
+    var cx = \'014230621869110231478:uw3koc4onrw\';
+    var gcse = document.createElement(\'script\');
+    gcse.type = \'text/javascript\';
+    gcse.async = true;
+    gcse.src = \'https://cse.google.com/cse.js?cx=\' + cx;
+    var s = document.getElementsByTagName(\'script\')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+								</div>
+							</div>
+						</li>';
+	// Close UL
 	echo '
 					</ul>
 				</div>';
