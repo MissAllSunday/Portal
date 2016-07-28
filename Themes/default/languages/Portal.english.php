@@ -22,3 +22,5 @@ $txt['Portal_githubUser_sub'] = '';
 $txt['Portal_rss_cut'] = 'The string to take as reference';
 $txt['Portal_rss_cut_sub'] = '';
 $txt['Portal_forum_label'] = 'Forum';
+$txt['Portal_op_logo'] = 'url for the one piece logo image';
+$txt['Portal_op_logo_sub'] = '';
