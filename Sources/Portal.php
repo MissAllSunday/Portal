@@ -114,6 +114,7 @@ class Portal extends Suki\Ohara
 		$config_vars[] = array('text', $this->name .'_githubPass', 'subtext' => $this->text('githubPass_sub'));
 		$config_vars[] = array('text', $this->name .'_rss_cut', 'subtext' => $this->text('rss_cut_sub'));
 		$config_vars[] = array('text', $this->name .'_op_logo', 'subtext' => $this->text('op_logo_sub'));
+		$config_vars[] = array('text', $this->name .'_op_word', 'subtext' => $this->text('op_word_sub'));
 		$config_vars[] = '';
 	}
 
@@ -316,14 +317,14 @@ class Portal extends Suki\Ohara
 	{
 		// Don't need all of this.
 		if($this->setting('rss_cut') && $path = stristr($body, $this->setting('rss_cut'), true))
-		{
 			$body = $path;
 
-			// Add a nice logo.
-			$body = '[center][img width=400]'. $this->setting('op_logo') .'[/img][/center]
+		// Is this an op topic?
+		if (strpos($title, $this->setting('op_word')) !== false)
+			$body = '[center][img width=400 height=180]'. $this->setting('op_logo') .'[/img][/center]
 
 '. $body;
-		}
+
 	}
 
 	public function addLinkTree()

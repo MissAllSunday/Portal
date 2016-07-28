@@ -24,3 +24,5 @@ $txt['Portal_rss_cut_sub'] = '';
 $txt['Portal_forum_label'] = 'Forum';
 $txt['Portal_op_logo'] = 'url for the one piece logo image';
 $txt['Portal_op_logo_sub'] = '';
+$txt['Portal_op_word'] = 'word for finding an op feed topic';
+$txt['Portal_op_logo_sub'] = '';
