@@ -54,7 +54,7 @@ class Portal extends Suki\Ohara
 
 			catch (RuntimeException $e)
 			{
-				log_error($this->text('github_error') ' '. $e->getMessage());
+				log_error($this->text('github_error') .' '. $e->getMessage());
 			}
 		}
 
@@ -501,7 +501,7 @@ class Portal extends Suki\Ohara
 		foreach ($context['stable_icons'] as $icon)
 			$icon_sources[$icon] = 'images_url';
 
-		if (!empty($this->modSetting('enable_likes')))
+		if ($this->modSetting('enable_likes'))
 		{
 			$context['can_like'] = allowedTo('likes_like');
 			$context['can_see_likes'] = allowedTo('likes_view');
