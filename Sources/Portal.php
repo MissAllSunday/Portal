@@ -13,7 +13,11 @@ if (!defined('SMF'))
 
 // Use composer!
 require_once ($boarddir .'/vendor/autoload.php');
-require_once ($sourcedir .'/ohara/src/Suki/Ohara.php');
+
+// Ohara autoload!
+require_once $sourcedir .'/ohara/src/Suki/autoload.php';
+
+use Suki\Ohara;
 
 class Portal extends Suki\Ohara
 {
@@ -31,7 +35,7 @@ class Portal extends Suki\Ohara
 
 		$context['sidebar'] = array(
 			'github' => false,
-			'recent' => $this->getRecent(5, $this->enable('boards_exclude') ? explode(',', $this->setting('boards_exclude')) : null),
+			'recent' => $this->getRecent(5, explode(',', $this->setting('boards_exclude', ''))),
 		);
 
 		// Get github data.
@@ -42,10 +46,10 @@ class Portal extends Suki\Ohara
 			// Catch any runtime error.
 			try
 			{
-				$this->_github->authenticate($this->setting('githubClient'), $this->setting('githubPass'), Github\Client::AUTH_URL_CLIENT_ID);
-				$context['sidebar']['github']['user'] = $this->_github->api('user')->show($this->setting('githubUser'));
+				$this->_github->authenticate($this->setting('githubClient'), $this->setting('githubPass', ''), Github\Client::AUTH_URL_CLIENT_ID);
+				$context['sidebar']['github']['user'] = $this->_github->api('user')->show($this->setting('githubUser', ''));
 
-				$context['sidebar']['github']['repos'] = $this->_github->api('user')->repositories($this->setting('githubUser'));
+				$context['sidebar']['github']['repos'] = $this->_github->api('user')->repositories($this->setting('githubUser', ''));
 
 				// Pick 5 random repos.
 				shuffle($context['sidebar']['github']['repos']);
@@ -58,7 +62,7 @@ class Portal extends Suki\Ohara
 			}
 		}
 
-		if (!$context['user']['is_admin'] && !isset($_REQUEST['xml']))
+		if (!$context['user']['is_admin'] && (!isset($_REQUEST['xml']) || !isset($_REQUEST['js'])))
 			addInlineJavascript('
 		(function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
 		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -121,7 +125,7 @@ class Portal extends Suki\Ohara
 	public function addActions(&$actions)
 	{
 		// Mod is disabled.
-		if(!$this->setting('enable'))
+		if(!$this->enable('enable'))
 			return;
 
 		// Redirect the boardIndex to action "forum".
@@ -130,9 +134,15 @@ class Portal extends Suki\Ohara
 
 	public function addForceTheme()
 	{
+		global $user_info;
+
 		// Force the default theme on admin action.
 		if ($this->data('action') && ($this->data('action') == 'admin' || $this->data('action') == 'moderate'))
 			$_REQUEST['theme'] = 1;
+
+		// No? then force the theme, for me only.
+		else if ($user_info['is_admin'])
+			$_REQUEST['theme'] = 2;
 	}
 
 	public function addMenu(&$buttons)
@@ -140,7 +150,7 @@ class Portal extends Suki\Ohara
 		global $txt, $context, $scripturl;
 
 		// Mod is disabled.
-		if(!$this->setting('enable'))
+		if(!$this->enable('enable'))
 			return;
 
 		if (!empty($context['linktree']))
@@ -272,7 +282,7 @@ class Portal extends Suki\Ohara
 							$height = ' height="' . $currentAttachment['height'] . '"';
 						}
 
-						// structured data.
+						// Structured data.
 						$returnContext .='
 												<div itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
 													<meta itemprop="url" content="'. $currentAttachment['href']. '">
@@ -316,13 +326,12 @@ class Portal extends Suki\Ohara
 	public function addRssBody(&$body, &$title)
 	{
 		// Don't need all of this.
-		if($this->setting('rss_cut') && $path = stristr($body, $this->setting('rss_cut'), true))
+		if($this->enable('rss_cut') && $path = stristr($body, $this->setting('rss_cut', ''), true))
 			$body = $path;
 
 		// Is this an op topic?
 		if (strpos($title, $this->setting('op_word')) !== false)
-			$body = '[center][img width=400 height=180]'. $this->setting('op_logo') .'[/img][/center]
-
+			$body = '[center][img width=409 height=179]'. $this->setting('op_logo') .'[/img][/center]
 '. $body;
 
 	}
@@ -337,7 +346,7 @@ class Portal extends Suki\Ohara
 		$context['page_title'] = $context['page_title_html_safe'] = $context['forum_name'] .' - '. $this->text('forum_label');
 	}
 
-	public function getRecent($num_recent = 5, $exclude_boards = null, $include_boards = null)
+	public function getRecent($num_recent = 5, $exclude_boards = false, $include_boards = false)
 	{
 		global $settings, $scripturl, $txt, $user_info;
 		global $modSettings, $smcFunc, $context;
@@ -346,7 +355,7 @@ class Portal extends Suki\Ohara
 		if (($posts = cache_get_data($this->name .'-recent', 360)) != null)
 			return $posts;
 
-		if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
+		if ($exclude_boards == false && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
 			$exclude_boards = array($modSettings['recycle_board']);
 
 		else
@@ -485,8 +494,8 @@ class Portal extends Suki\Ohara
 		global $smcFunc, $scripturl;
 
 		// Get some settings.
-		$this->_limit = $this->enable('limit') ? (int) $this->setting('limit') : 5;
-		$this->_maxLimit = $this->enable('maxLimit') ? (int) $this->setting('maxLimit') : 50;
+		$this->_limit = $this->setting('limit', 5);
+		$this->_maxLimit = $this->setting('maxLimit', 50);
 		$this->_boards = $this->enable('boards') ? explode(',', $this->setting('boards')) : array();
 		$this->_start = $this->validate('start') ? (int) $this->data('start') : 0;
 
@@ -530,6 +539,7 @@ class Portal extends Suki\Ohara
 		$posts = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$posts[] = $row['id_first_msg'];
+
 		$smcFunc['db_free_result']($request);
 
 		if (empty($posts))
