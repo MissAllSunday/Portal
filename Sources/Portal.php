@@ -11,9 +11,6 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-// Use composer!
-require_once ($boarddir .'/vendor/autoload.php');
-
 // Ohara autoload!
 require_once $sourcedir .'/ohara/src/Suki/autoload.php';
 
@@ -71,6 +68,8 @@ class Portal extends Suki\Ohara
 
 		ga("create", "UA-27276940-1", "auto");
 		ga("send", "pageview");', true);
+
+		// To do: add a hook to be able to load and create a "$context['blocks']" var, print those blocks on the template. sidebar() gets called pretty late so its possible to fill up "action specific" blocks.
 	}
 
 	public function addInit()
@@ -155,6 +154,7 @@ class Portal extends Suki\Ohara
 
 		if (!empty($context['linktree']))
 		{
+			// This shouldn't rely on _GET but then again, I'm lazy...
 			if (!empty($_GET))
 				array_splice($context['linktree'], 1, 0, array(array(
 					'url' => $scripturl . '?action=forum',
@@ -207,12 +207,6 @@ class Portal extends Suki\Ohara
 					'href' => $scripturl . '?action=mlist',
 					'show' => true,
 				),
-				'mlist_search' => array(
-					'title' => $txt['mlist_search'],
-					'href' => $scripturl . '?action=mlist;sa=search',
-					'show' => true,
-					'is_last' => true,
-				),
 			),
 		);
 
@@ -224,9 +218,8 @@ class Portal extends Suki\Ohara
 	{
 		global $modSettings, $context, $sourcedir, $txt;
 
-		// Gotta find that pesky code tag!
+		// Gotta find that pesky code tag! a few months later: I have no idea why I added this or why I needed to find that pesky code tag!
 		foreach ($codes as $k => $c)
-		{
 			if ($c['tag'] == 'code' && ($c['type'] == 'unparsed_content' || $c['type'] == 'unparsed_equals_content'))
 				$codes[$k]['validate'] = function (&$tag, &$data, $disabled) use ($context)
 					{
@@ -365,7 +358,7 @@ class Portal extends Suki\Ohara
 		if (is_array($include_boards) || (int) $include_boards === $include_boards)
 			$include_boards = is_array($include_boards) ? $include_boards : array($include_boards);
 
-		elseif ($include_boards != null)
+		elseif ($include_boards != false)
 		{
 			$output_method = $include_boards;
 			$include_boards = array();
@@ -478,6 +471,8 @@ class Portal extends Suki\Ohara
 				'new_from' => $row['new_from'],
 				'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" style="vertical-align:middle;" alt="' . $row['icon'] . '">',
 			);
+
+			// To do: should add likes to this... you know, to boost my ego and that kind of stuff...
 		}
 
 		$smcFunc['db_free_result']($request);

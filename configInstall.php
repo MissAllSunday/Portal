@@ -34,5 +34,28 @@ $_config = array(
 // All good.
 updateSettings(array('_configBlogNews' => json_encode($_config)));
 
+// Update or create $modSettings['OharaAutoload']
+if (empty($modSettings['OharaAutoload']))
+	$pref = array(
+		'namespaces' => array(
+			'Guzzle' => array('{$vendorDir}/guzzle/guzzle/src'),
+		),
+		'psr4' => array(
+			'Symfony\\Component\\EventDispatcher\\' => array('{$vendorDir}/symfony/event-dispatcher'),
+			'Github\\' => array('{$vendorDir}/knplabs/github-api/lib/Github'),
+		),
+		'classmap' => array(),
+	);
+
+else
+{
+	$pref = smf_json_decode($modSettings['OharaAutoload'], true);
+
+	$pref['namespaces']['SimplePie'] => array('{$vendorDir}/simplepie/simplepie/library');
+}
+
+// Either way, save it.
+updateSettings(array('OharaAutoload' => json_encode($pref)));
+
 if (SMF == 'SSI')
 	echo 'Database changes are complete!';
