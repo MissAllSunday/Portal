@@ -30,9 +30,11 @@ class Portal extends Suki\Ohara
 	{
 		global $context;
 
+		$bExclude = $this->enable('boards_exclude') ? explode(',', $this->setting('boards_exclude')) : array();
+
 		$context['sidebar'] = array(
 			'github' => false,
-			'recent' => $this->getRecent(5, explode(',', $this->setting('boards_exclude', ''))),
+			'recent' => $this->getRecent(5, $bExclude),
 		);
 
 		// Get github data.

@@ -53,7 +53,7 @@ else
 
 	$pref['namespaces']['Guzzle'] = array('{$vendorDir}/guzzle/guzzle/src');
 	$pref['psr4']['Symfony\\Component\\EventDispatcher\\'] = array('{$vendorDir}/symfony/event-dispatcher');
-	$pref['psr4']['Github\\'] = array('{$vendorDir}/symfony/event-dispatcher');
+	$pref['psr4']['Github\\'] = array('{$vendorDir}/knplabs/github-api/lib/Github');
 }
 
 // Either way, save it.
