@@ -19,7 +19,7 @@ use Suki\Ohara;
 class Portal extends Suki\Ohara
 {
 	public $name = __CLASS__;
-	protected $_useConfig = true;
+	public $useConfig = true;
 
 	public function __construct()
 	{
@@ -75,6 +75,13 @@ class Portal extends Suki\Ohara
 	public function addInit()
 	{
 		global $context, $txt, $scripturl;
+
+		// Mod is disabled.
+		if(!$this->enable('enable'))
+		{
+			require_once($this->sourceDir . '/BoardIndex.php');
+			return BoardIndex();
+		}
 
 		// Define some context vars.
 		$context[$this->name] = array();
@@ -136,7 +143,7 @@ class Portal extends Suki\Ohara
 		global $user_info;
 
 		// Force the default theme on admin action.
-		if ($this->data('action') && ($this->data('action') == 'admin' || $this->data('action') == 'moderate'))
+		if ($this['data']->get('action') && ($this['data']->get('action') == 'admin' || $this['data']->get('action') == 'moderate'))
 			$_REQUEST['theme'] = 1;
 
 		// No? then force the theme, for me only.
@@ -218,8 +225,9 @@ class Portal extends Suki\Ohara
 	{
 		global $modSettings, $context, $sourcedir, $txt;
 
-		// Gotta find that pesky code tag! a few months later: I have no idea why I added this or why I needed to find that pesky code tag!
+		// Gotta find that pesky code tag!
 		foreach ($codes as $k => $c)
+		{
 			if ($c['tag'] == 'code' && ($c['type'] == 'unparsed_content' || $c['type'] == 'unparsed_equals_content'))
 				$codes[$k]['validate'] = function (&$tag, &$data, $disabled) use ($context)
 					{
@@ -492,7 +500,7 @@ class Portal extends Suki\Ohara
 		$this->_limit = $this->setting('limit', 5);
 		$this->_maxLimit = $this->setting('maxLimit', 50);
 		$this->_boards = $this->enable('boards') ? explode(',', $this->setting('boards')) : array();
-		$this->_start = $this->validate('start') ? (int) $this->data('start') : 0;
+		$this->_start = $this['data']->validate('start') ? (int) $this['data']->get('start') : 0;
 
 		// Chances are you are only going to see the first page so...
 		if (($return = cache_get_data($this->name .'-news', 360)) != null && $this->_start == 0)

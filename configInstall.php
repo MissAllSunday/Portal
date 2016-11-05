@@ -32,7 +32,7 @@ $_config = array(
 );
 
 // All good.
-updateSettings(array('_configBlogNews' => json_encode($_config)));
+updateSettings(array('_configPortal' => json_encode($_config)));
 
 // Update or create $modSettings['OharaAutoload']
 if (empty($modSettings['OharaAutoload']))
@@ -51,9 +51,9 @@ else
 {
 	$pref = smf_json_decode($modSettings['OharaAutoload'], true);
 
-	$pref['namespaces']['Guzzle'] => array('{$vendorDir}/guzzle/guzzle/src');
-	$pref['psr4']['Symfony\\Component\\EventDispatcher\\'] => ,
-	$pref['psr4']['Github\\'] => '{$vendorDir}/symfony/event-dispatcher',
+	$pref['namespaces']['Guzzle'] = array('{$vendorDir}/guzzle/guzzle/src');
+	$pref['psr4']['Symfony\\Component\\EventDispatcher\\'] = array('{$vendorDir}/symfony/event-dispatcher');
+	$pref['psr4']['Github\\'] = array('{$vendorDir}/symfony/event-dispatcher');
 }
 
 // Either way, save it.
