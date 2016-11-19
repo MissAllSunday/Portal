@@ -61,7 +61,7 @@ class Portal extends Suki\Ohara
 			}
 		}
 
-		if (!$context['user']['is_admin'] && (!isset($_REQUEST['xml']) || !isset($_REQUEST['js'])))
+		if (!$context['user']['is_admin'] && (!$this['data']->validate('xml') || !$this['data']->validate('js')))
 			addInlineJavascript('
 		(function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
 		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -145,12 +145,8 @@ class Portal extends Suki\Ohara
 		global $user_info;
 
 		// Force the default theme on admin action.
-		if ($this['data']->get('action') && ($this['data']->get('action') == 'admin' || $this['data']->get('action') == 'moderate'))
-			$_REQUEST['theme'] = 1;
-
-		// No? then force the theme, for me only.
-		else if ($user_info['is_admin'])
-			$_REQUEST['theme'] = 2;
+		if ($this['data']->get('action') == 'admin' || $this['data']->get('action') == 'moderate')
+			$this['data']->setData(array('theme' => 1));
 	}
 
 	public function addMenu(&$buttons)
@@ -228,6 +224,7 @@ class Portal extends Suki\Ohara
 		global $modSettings, $context, $sourcedir, $txt;
 
 		// Gotta find that pesky code tag!
+		// Note to future self: To remove the default coloring, you did this to remove the default coloring...
 		foreach ($codes as $k => $c)
 		{
 			if ($c['tag'] == 'code' && ($c['type'] == 'unparsed_content' || $c['type'] == 'unparsed_equals_content'))
@@ -502,7 +499,7 @@ class Portal extends Suki\Ohara
 		$this->_limit = $this->setting('limit', 5);
 		$this->_maxLimit = $this->setting('maxLimit', 50);
 		$this->_boards = $this->enable('boards') ? explode(',', $this->setting('boards')) : array();
-		$this->_start = $this['data']->validate('start') ? (int) $this['data']->get('start') : 0;
+		$this->_start = $this['data']->get('start');
 
 		// Chances are you are only going to see the first page so...
 		if (($return = cache_get_data($this->name .'-news', 360)) != null && $this->_start == 0)
@@ -636,7 +633,7 @@ class Portal extends Suki\Ohara
 	{
 		global $context;
 
-		if (!$context['user']['is_admin'] && !isset($_REQUEST['xml']))
+		if (!$context['user']['is_admin'] && !$this['data']->validate('xml'))
 			addInlineJavascript('
   (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -646,8 +643,6 @@ class Portal extends Suki\Ohara
   ga("create", "UA-27276940-1", "auto");
   ga("send", "pageview");', true);
 
-		if ($context['user']['is_logged'] || isset($_REQUEST['xml']))
-			return;
 	}
 
 	public function github()
