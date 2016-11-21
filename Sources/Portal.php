@@ -146,7 +146,10 @@ class Portal extends Suki\Ohara
 
 		// Force the default theme on admin action.
 		if ($this['data']->get('action') == 'admin' || $this['data']->get('action') == 'moderate')
-			$this['data']->setData(array('theme' => 1));
+			$this['data']->put(array('theme' => 1));
+
+		else if ($user_info['is_admin'])
+			$this['data']->put(array('theme' => 2));
 	}
 
 	public function addMenu(&$buttons)
