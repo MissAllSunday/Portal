@@ -24,6 +24,8 @@ class Portal extends Suki\Ohara
 	public function __construct()
 	{
 		$this->setRegistry();
+
+		$this->addCss();
 	}
 
 	public function sideBar()
@@ -222,6 +224,13 @@ class Portal extends Suki\Ohara
 		$this->sideBar();
 	}
 
+	public function addCss()
+	{
+		addInlineJavaScript('
+	var _preLoadIMG = [];');
+
+	}
+
 	public function addCodeBbc(&$codes)
 	{
 		global $modSettings, $context, $sourcedir, $txt;
@@ -322,8 +331,47 @@ class Portal extends Suki\Ohara
 					'height' => array('optional' => true, 'value' => '$1', 'match' => '(\d+)'),
 				);
 				$codes[$k]['content'] = '<div itemprop="image" itemscope itemtype="https://schema.org/ImageObject"><img src="$1" alt="{alt}" title="{title}" width="{width}" height="{height}" class="bbc_img resized"><meta itemprop="url" content="$1"><meta itemprop="width" content="{width}"><meta itemprop="height" content="{height}"></div>';
+
 			}
+
+			// Add this to the pre-load list.
+			if ($c['tag'] == 'img')
+				$codes[$k]['validate'] = function (&$tag, &$data, $disabled)
+				{
+					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+
+					$data = strtr($data, array('<br>' => ''));
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if ($image_proxy_enabled)
+					{
+						if (empty($scheme))
+							$data = 'http://' . ltrim($data, ':/');
+
+						if ($scheme != 'https')
+							$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+					}
+					elseif (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
+
+					addInlineJavaScript('
+	_preLoadIMG.push({
+		requestUrl: "'. $data .'"
+	});
+');
+				};
+
 		}
+
+	$context['html_headers'] .='
+<script>
+	var preImages = [];
+
+	if (typeof _preLoadIMG !== "undefined")
+		for (i = 0; i < _preLoadIMG.length; i++) {
+			preImages[i] = new Image();
+			preImages[i].src = _preLoadIMG[i].requestUrl;
+		}
+</script>';
 	}
 
 	public function addRssBody(&$body, &$title)
@@ -645,7 +693,6 @@ class Portal extends Suki\Ohara
 
   ga("create", "UA-27276940-1", "auto");
   ga("send", "pageview");', true);
-
 	}
 
 	public function github()
